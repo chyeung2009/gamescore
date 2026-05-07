@@ -23,27 +23,45 @@
             margin: 0 auto;
             padding: 12px;
         }
-        .header {
+         .header {
             display: flex;
             align-items: center;
-            margin-bottom: 12px;
-            padding: 8px 12px;
+            justify-content: space-between;
+            padding: 16px 20px;
+            margin-bottom: 16px;
             background: rgba(255,255,255,0.95);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            gap: 20px;
+        }
+        .logo-left {
+            flex-shrink: 0;
         }
         .logo-img {
-            width: 48px;
-            height: 48px;
-            margin-right: 12px;
-            border-radius: 8px;
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
         }
-        .logo-text {
-            font-size: 28px;
-            font-weight: 700;
-            color: #333;
-            margin: 0;
+        .logo-right {
+            flex: 1;
+            text-align: center;
         }
+.logo-text {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    line-height: 1.3;
+    text-shadow: 0 2px 8px rgba(102,126,234,0.3);
+    white-space: nowrap;
+    padding-right: 24px;  /* 右側內邊距 */
+}
+
         .tabs {
             display: flex;
             background: rgba(255,255,255,0.95);
@@ -311,9 +329,8 @@
     <div class="container">
          <div class="header">
             <img src="learning_logo.jpg" alt="Learning Logo" class="logo-img">
-            <h1 class="logo-text">终身學習 商機無限
-We Are Learning!
-Link Up Move Up. Level Up</h1>
+            <h1 class="logo-text">終身學習 商機無限 <br>
+We Are Learning!</h1>
         </div>
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab(0)">🏆 Dashboard</button>
