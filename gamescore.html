@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game 計分 App</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #eae366 0%, #764ba2 100%); 
+            min-height: 100vh;
+            color: #333;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }        
+        .logo { 
+            font-size: 32px; 
+            font-weight: 700; 
+            color: #fff; 
+            text-align: center; 
+            margin: 20px 0; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.2); 
+            padding: 15px; 
+            border-radius: 15px; 
+            backdrop-filter: blur(10px);
+        }
+        .tabs { 
+            display: flex; 
+            background: rgba(255,255,255,0.95); 
+            border-radius: 20px; 
+            padding: 5px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        .tab-btn { 
+            flex: 1; 
+            padding: 18px 20px; 
+            background: transparent; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 18px; 
+            font-weight: 500; 
+            border-radius: 15px; 
+            transition: all 0.3s ease;
+            color: #666;
+        }
+        .tab-btn.active { 
+            background: linear-gradient(45deg, #ff6b6b, #feca57); 
+            color: white; 
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(254,202,87,0.4);
+        }
+        .tab-content { 
+            display: none; 
+            background: rgba(255,255,255,0.95); 
+            padding: 30px; 
+            border-radius: 25px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15); 
+            backdrop-filter: blur(15px);
+            margin-bottom: 20px;
+        }
+        .tab-content.active { display: block; }
+        
+        /* Dashboard */
+        .chart-container { position: relative; height: 450px; margin: 30px 0; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .ranking { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 15px; 
+            margin: 20px 0;
+        }
+        .rank-item { 
+            padding: 25px; 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            color: white; 
+            border-radius: 20px; 
+            text-align: center; 
+            font-size: 20px; 
+            font-weight: 700;
+            box-shadow: 0 10px 25px rgba(102,126,234,0.3);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        .rank-item:hover { transform: translateY(-5px); }
+        .rank-num { font-size: 28px; color: #ffd700; }
+        
+        /* 計分 TAB - 響應式大螢幕 */
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        @media (min-width: 1400px) {
+            .teams-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (min-width: 1000px) and (max-width: 1399px) {
+            .teams-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .team { 
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7)); 
+            border-radius: 25px; 
+            padding: 30px 20px; 
+            text-align: center; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .team::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 5px;
+        }
+        .team.red::before { background: linear-gradient(90deg, #ff4757, #ff6b7a); }
+        .team.blue::before { background: linear-gradient(90deg, #3742fa, #5352ed); }
+        .team.yellow::before { background: linear-gradient(90deg, #ffa502, #ff6348); }
+        .team.green::before { background: linear-gradient(90deg, #2ed573, #51cf66); }
+        .team:hover { transform: translateY(-10px); box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
+        .team-name { 
+            font-size: 22px; 
+            font-weight: 700; 
+            margin-bottom: 15px; 
+            color: #333;
+        }
+        .score { 
+            font-size: 64px; 
+            font-weight: 900; 
+            margin: 20px 0; 
+            background: linear-gradient(45deg, #667eea, #764ba2); 
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button { 
+            padding: 12px 18px; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .btn-plus { 
+            background: linear-gradient(45deg, #28a745, #20c997); 
+            color: white; 
+        }
+        .btn-plus:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(40,167,69,0.4); }
+        .btn-minus { 
+            background: linear-gradient(45deg, #dc3545, #fd7e14); 
+            color: white; 
+        }
+        .btn-minus:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(220,53,69,0.4); }
+        .custom-input { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 15px; 
+            padding: 15px; 
+            background: rgba(255,255,255,0.5); 
+            border-radius: 15px;
+        }
+        .custom-input input { 
+            flex: 1; 
+            padding: 12px; 
+            border: 2px solid #e9ecef; 
+            border-radius: 10px; 
+            font-size: 16px;
+        }
+        
+        /* Log/設定 */
+        .setting-section { margin-bottom: 30px; padding: 25px; background: rgba(255,255,255,0.6); border-radius: 20px; }
+        .nickname-inputs { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 20px;
+        }
+        .nickname-input { 
+            padding: 15px; 
+            border: 2px solid #e9ecef; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-family: inherit;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        th, td { 
+            padding: 18px 15px; 
+            text-align: left; 
+            border-bottom: 1px solid #e9ecef;
+        }
+        th { 
+            background: linear-gradient(45deg, #667eea, #764ba2); 
+            color: white; 
+            font-weight: 600;
+        }
+        .reset-btn { 
+            background: linear-gradient(45deg, #dc3545, #fd7e14); 
+            color: white; 
+            padding: 18px 40px; 
+            font-size: 18px; 
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(220,53,69,0.3);
+        }
+        .csv-btn { 
+            background: linear-gradient(45deg, #17a2b8, #20c997); 
+            color: white; 
+            padding: 15px 30px; 
+            font-size: 16px; 
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .score { font-size: 48px; }
+            .team-name { font-size: 18px; }
+            .teams-grid { grid-template-columns: 1fr; }
+            .logo { font-size: 24px; padding: 10px; }
+        }
+          :root {
+            --bg: #f2f4f5;
+            --surface: #ffffff;
+            --surface-2: #e5e9ec;
+            --line: #c5cbce;
+            --text: #2c3137;
+            --muted: #6c747e;
+            --brand: #1f4a7c;
+            --brand-2: #355b8d;
+            --red: #e84c57;
+            --blue: #1f4a7c;
+            --yellow: #f9ac3c;
+            --green: #2f8e5f;
+            --danger: #dc3545;
+            --ok: #28a745;
+            --shadow: 0 10px 30px rgba(44, 49, 55, 0.08);
+          }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">we are learning</div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(0)">🏆 Dashboard</button>
+            <button class="tab-btn" onclick="switchTab(1)">⚡ 加減分</button>
+            <button class="tab-btn" onclick="switchTab(2)">📊 Log / 設定</button>
+        </div>
+
+        <!-- TAB 1: Dashboard -->
+        <div id="tab0" class="tab-content active">
+            <h2 style="text-align: center; color: #333; margin-bottom: 30px;">即時分數總覽</h2>
+            <div id="ranking" class="ranking"></div>
+            <div class="chart-container">
+                <canvas id="scoreChart"></canvas>
+            </div>
+        </div>
+
+        <!-- TAB 2: 加減分 -->
+        <div id="tab1" class="tab-content">
+            <h2 style="text-align: center; color: #333; margin-bottom: 30px;">快速計分操作</h2>
+            <div id="teams" class="teams-grid"></div>
+        </div>
+
+        <!-- TAB 3: Log / 設定 -->
+        <div id="tab2" class="tab-content">
+            <div class="setting-section">
+                <h3>🏷️ 隊伍外號設定</h3>
+                <div class="nickname-inputs">
+                    <input type="text" id="nick-red" class="nickname-input" placeholder="紅組">
+                    <input type="text" id="nick-blue" class="nickname-input" placeholder="藍組">
+                    <input type="text" id="nick-yellow" class="nickname-input" placeholder="黃組">
+                    <input type="text" id="nick-green" class="nickname-input" placeholder="綠組">
+                </div>
+                <button onclick="saveNicknames()" class="csv-btn" style="background: linear-gradient(45deg, #007bff, #0056b3);">💾 保存外號</button>
+            </div>
+            
+            <div class="setting-section">
+                <h3>📈 比分紀錄 (最近 20 筆)</h3>
+                <table id="logTable">
+                    <thead><tr><th>時間</th><th>組別</th><th>分數變化</th><th>原因</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <button onclick="exportCSV()" class="csv-btn">📥 匯出 CSV</button>
+            </div>
+            
+            <div style="text-align: center; padding: 30px; background: rgba(220,53,69,0.1); border-radius: 20px; margin-top: 30px;">
+                <button class="reset-btn" onclick="resetAll()">🗑️ 重設全部數據</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 所有 JavaScript 功能完全相同，保持原有邏輯
+        const teams = ['red', 'blue', 'yellow', 'green'];
+        let scores = { red: 0, blue: 0, yellow: 0, green: 0 };
+        let nicknames = { red: '紅組', blue: '藍組', yellow: '黃組', green: '綠組' };
+        let logs = [];
+        let chart = null;
+
+        function loadData() {
+            const savedScores = localStorage.getItem('scores');
+            const savedNicks = localStorage.getItem('nicknames');
+            const savedLogs = localStorage.getItem('logs');
+            if (savedScores) scores = JSON.parse(savedScores);
+            if (savedNicks) nicknames = JSON.parse(savedNicks);
+            if (savedLogs) logs = JSON.parse(savedLogs).slice(-100);
+            renderAll();
+        }
+
+        function saveData() {
+            localStorage.setItem('scores', JSON.stringify(scores));
+            localStorage.setItem('nicknames', JSON.stringify(nicknames));
+            localStorage.setItem('logs', JSON.stringify(logs));
+        }
+
+        function switchTab(index) {
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === index));
+            document.querySelectorAll('.tab-content').forEach((tab, i) => tab.classList.toggle('active', i === index));
+            if (index === 0) updateChart();
+        }
+
+        function renderAll() {
+            renderTeams();
+            updateRanking();
+            updateChart();
+            updateNickInputs();
+            updateLogTable();
+        }
+
+        function renderTeams() {
+            const container = document.getElementById('teams');
+            container.innerHTML = teams.map(team => `
+                <div class="team ${team}">
+                    <div class="team-name" data-team="${team}">${nicknames[team]}</div>
+                    <div class="score">${scores[team]}</div>
+                    <div class="btn-grid">
+                        <button class="btn-plus" onclick="changeScore('${team}', 1, prompt('原因:') || '加1')">+1</button>
+                        <button class="btn-plus" onclick="changeScore('${team}', 5, prompt('原因:') || '加5')">+5</button>
+                        <button class="btn-minus" onclick="changeScore('${team}', -1, prompt('原因:') || '減1')">-1</button>
+                        <button class="btn-minus" onclick="changeScore('${team}', -5, prompt('原因:') || '減5')">-5</button>
+                    </div>
+                    <div class="custom-input">
+                        <input type="number" id="custom-${team}" placeholder="自訂分數">
+                        <button class="btn-plus" onclick="customScore('${team}', true)">加自訂</button>
+                        <button class="btn-minus" onclick="customScore('${team}', false)">減自訂</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateRanking() {
+            const sorted = teams.slice().sort((a, b) => scores[b] - scores[a]);
+            document.getElementById('ranking').innerHTML = sorted.map((team, i) => `
+                <div class="rank-item">
+                    <div class="rank-num">${i+1} 🥇</div>
+                    <div>${nicknames[team]} <span style="font-size: 24px;">${scores[team]} 分</span></div>
+                </div>
+            `).join('');
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('scoreChart').getContext('2d');
+            const data = {
+                labels: teams.map(t => nicknames[t]),
+                datasets: [{
+                    label: '分數',
+                    data: teams.map(t => scores[t]),
+                    backgroundColor: ['#ff4757', '#3742fa', '#ffa502', '#2ed573'],
+                    borderColor: ['#ff3742', '#2c3efa', '#ff8c00', '#1abc2e'],
+                    borderWidth: 2,
+                    borderRadius: 10,
+                    borderSkipped: false,
+                }]
+            };
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { font: { size: 14 } }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { font: { size: 16, weight: 'bold' } }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutBounce'
+                    }
+                }
+            });
+        }
+
+        function changeScore(team, delta, reason) {
+            scores[team] += delta;
+            const time = new Date().toLocaleString('zh-TW');
+            logs.push({ time, team: nicknames[team], change: delta, reason });
+            saveData();
+            renderAll();
+        }
+
+        function customScore(team, isAdd) {
+            const input = document.getElementById(`custom-${team}`);
+            const val = parseInt(input.value) || 0;
+            if (val === 0) return alert('請輸入分數');
+            const delta = isAdd ? val : -val;
+            const reason = prompt('原因:') || (isAdd ? '加自訂' : '減自訂');
+            changeScore(team, delta, reason);
+            input.value = '';
+        }
+
+        function saveNicknames() {
+            teams.forEach(team => {
+                nicknames[team] = document.getElementById(`nick-${team}`).value || nicknames[team];
+            });
+            saveData();
+            renderAll();
+            alert('外號已保存！');
+        }
+
+        function updateNickInputs() {
+            teams.forEach(team => {
+                document.getElementById(`nick-${team}`).value = nicknames[team];
+            });
+        }
+
+        function updateLogTable() {
+            const tbody = document.querySelector('#logTable tbody');
+            tbody.innerHTML = logs.slice(-20).reverse().map(log => `
+                <tr>
+                    <td>${log.time}</td>
+                    <td style="font-weight: 600;">${log.team}</td>
+                    <td style="color: ${log.change > 0 ? '#28a745' : '#dc3545'}; font-weight: bold; font-size: 16px;">${log.change}</td>
+                    <td>${log.reason}</td>
+                </tr>
+            `).join('');
+        }
+
+        function exportCSV() {
+            const headers = '時間,組別,變化,原因\n';
+            const csv = headers + logs.slice().reverse().map(log => `"${log.time}","${log.team}",${log.change},"${log.reason.replace(/"/g, '""')}"`).join('\n');
+            const blob = new Blob([new Uint8Array([0xEF,0xBB,0xBF]), csv], { type: 'text/csv;charset=utf-8;' }); // BOM for Excel
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `計分紀錄_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        function resetAll() {
+            if (confirm('⚠️ 確定重設全部？\n• 分數歸零\n• Log 清空\n• 外號還原預設')) {
+                scores = { red: 0, blue: 0, yellow: 0, green: 0 };
+                nicknames = { red: '紅組', blue: '藍組', yellow: '黃組', green: '綠組' };
+                logs = [];
+                localStorage.clear();
+                renderAll();
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
