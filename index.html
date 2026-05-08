@@ -1,26 +1,3 @@
-你的程式碼有 **2 個 JavaScript 語法錯誤**在 `updateChart()` 函數裡。以下是修正後的完整程式碼：
-
-**問題所在：**
-```js
-// ❌ 錯誤 — 缺少  屬性名稱
-activeTeams.map(t => scores[t]),
-
-// ❌ 錯誤 — 缺少 data 屬性名稱
-chart = new Chart(ctx, {
-    type: 'bar',
-     data,   // 這個寫法在某些環境不支援
-```
-
-**✅ 修正後：**
-```js
- activeTeams.map(t => scores[t]),  // 加回 
-...
-chart = new Chart(ctx, { type: 'bar',  data,  // 改為  data
-```
-
-以下是完整修正版本：
-
-```html
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -448,6 +425,3 @@ chart = new Chart(ctx, { type: 'bar',  data,  // 改為  data
 </script>
 </body>
 </html>
-```
-
-Sources
