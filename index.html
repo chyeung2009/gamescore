@@ -47,21 +47,20 @@
             flex: 1;
             text-align: center;
         }
-.logo-text {
-    text-align: center;
-    font-size: 32px;
-    font-weight: 800;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0;
-    line-height: 1.3;
-    text-shadow: 0 2px 8px rgba(102,126,234,0.3);
-    white-space: nowrap;
-    padding-right: 24px;  /* 右側內邊距 */
-}
-
+        .logo-text {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            line-height: 1.3;
+            text-shadow: 0 2px 8px rgba(102,126,234,0.3);
+            white-space: nowrap;
+            padding-right: 24px;
+        }
         .tabs {
             display: flex;
             background: rgba(255,255,255,0.95);
@@ -166,25 +165,15 @@
             position: relative;
             overflow: hidden;
         }
+        /* 透過 CSS Variable 動態給色 */
         .team::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 4px;
-        }
-        .team.red::before {
-            background: linear-gradient(90deg, #ff4757, #ff6b7a);
-        }
-        .team.blue::before {
-            background: linear-gradient(90deg, #3742fa, #5352ed);
-        }
-        .team.yellow::before {
-            background: linear-gradient(90deg, #ffa502, #ff6348);
-        }
-        .team.green::before {
-            background: linear-gradient(90deg, #2ed573, #51cf66);
+            height: 6px;
+            background: var(--team-color, #999);
         }
         .team:hover {
             transform: translateY(-8px);
@@ -258,19 +247,44 @@
             background: rgba(255,255,255,0.6);
             border-radius: 16px;
         }
-        .nickname-inputs {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            margin-bottom: 16px;
+        
+        /* 設定頁的動態列 UI */
+        .setting-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            flex-wrap: wrap;
         }
-        .nickname-input {
+        .setting-row input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            accent-color: #667eea;
+            cursor: pointer;
+        }
+        .setting-row input[type="color"] {
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 0;
+            background: transparent;
+        }
+        .setting-row input[type="text"] {
+            flex: 1;
+            min-width: 150px;
             padding: 12px;
             border: 2px solid #e9ecef;
             border-radius: 10px;
             font-size: 14px;
             font-family: inherit;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -329,8 +343,7 @@
     <div class="container">
          <div class="header">
             <img src="learning_logo.jpg" alt="Learning Logo" class="logo-img">
-            <h1 class="logo-text">終身學習 商機無限 <br>
-We Are Learning!</h1>
+            <h1 class="logo-text">終身學習 商機無限 <br>We Are Learning!</h1>
         </div>
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab(0)">🏆 Dashboard</button>
@@ -356,14 +369,11 @@ We Are Learning!</h1>
         <!-- TAB 3: Log / 設定 -->
         <div id="tab2" class="tab-content">
             <div class="setting-section">
-                <h3>🏷️ 隊伍外號設定</h3>
-                <div class="nickname-inputs">
-                    <input type="text" id="nick-red" class="nickname-input" placeholder="紅組">
-                    <input type="text" id="nick-blue" class="nickname-input" placeholder="藍組">
-                    <input type="text" id="nick-yellow" class="nickname-input" placeholder="黃組">
-                    <input type="text" id="nick-green" class="nickname-input" placeholder="綠組">
+                <h3>🏷️ 隊伍設定 (啟用 / 顏色 / 外號)</h3>
+                <div id="settingsContainer">
+                    <!-- JS 動態生成設定列 -->
                 </div>
-                <button onclick="saveNicknames()" class="csv-btn" style="background: linear-gradient(45deg, #007bff, #0056b3);">💾 保存外號</button>
+                <button onclick="saveSettings()" class="csv-btn" style="background: linear-gradient(45deg, #007bff, #0056b3); margin-top: 16px;">💾 保存設定</button>
             </div>
             
             <div class="setting-section">
@@ -382,47 +392,75 @@ We Are Learning!</h1>
     </div>
 
     <script>
-        // 所有 JavaScript 功能完全相同，保持原有邏輯
-        const teams = ['red', 'blue', 'yellow', 'green'];
-        let scores = { red: 0, blue: 0, yellow: 0, green: 0 };
-        let nicknames = { red: '紅組', blue: '藍組', yellow: '黃組', green: '綠組' };
+        // 設定所有隊伍基本資料 ID (6組)
+        const allTeams = ['team1', 'team2', 'team3', 'team4', 'team5', 'team6'];
+        
+        // 預設資料
+        let scores = { team1: 0, team2: 0, team3: 0, team4: 0, team5: 0, team6: 0 };
+        let nicknames = { 
+            team1: '紅組', team2: '藍組', team3: '黃組', 
+            team4: '綠組', team5: '紫組', team6: '橘組' 
+        };
+        
+        // 預設設定：頭4組 enable, 尾2組 disable。並指定預設顏色
+        let teamSettings = {
+            team1: { enabled: true, color: '#ff4757' },
+            team2: { enabled: true, color: '#3742fa' },
+            team3: { enabled: true, color: '#ffa502' },
+            team4: { enabled: true, color: '#2ed573' },
+            team5: { enabled: false, color: '#9b59b6' },
+            team6: { enabled: false, color: '#e67e22' }
+        };
+        
         let logs = [];
         let chart = null;
 
         function loadData() {
-            const savedScores = localStorage.getItem('scores');
-            const savedNicks = localStorage.getItem('nicknames');
-            const savedLogs = localStorage.getItem('logs');
+            const savedScores = localStorage.getItem('scores_v2');
+            const savedNicks = localStorage.getItem('nicknames_v2');
+            const savedSettings = localStorage.getItem('settings_v2');
+            const savedLogs = localStorage.getItem('logs_v2');
+            
             if (savedScores) scores = JSON.parse(savedScores);
             if (savedNicks) nicknames = JSON.parse(savedNicks);
+            if (savedSettings) teamSettings = JSON.parse(savedSettings);
             if (savedLogs) logs = JSON.parse(savedLogs).slice(-100);
+            
             renderAll();
         }
 
         function saveData() {
-            localStorage.setItem('scores', JSON.stringify(scores));
-            localStorage.setItem('nicknames', JSON.stringify(nicknames));
-            localStorage.setItem('logs', JSON.stringify(logs));
+            localStorage.setItem('scores_v2', JSON.stringify(scores));
+            localStorage.setItem('nicknames_v2', JSON.stringify(nicknames));
+            localStorage.setItem('settings_v2', JSON.stringify(teamSettings));
+            localStorage.setItem('logs_v2', JSON.stringify(logs));
         }
 
         function switchTab(index) {
             document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === index));
             document.querySelectorAll('.tab-content').forEach((tab, i) => tab.classList.toggle('active', i === index));
             if (index === 0) updateChart();
+            if (index === 2) renderSettingsPanel();
+        }
+
+        function getActiveTeams() {
+            return allTeams.filter(t => teamSettings[t].enabled);
         }
 
         function renderAll() {
             renderTeams();
             updateRanking();
             updateChart();
-            updateNickInputs();
+            renderSettingsPanel();
             updateLogTable();
         }
 
         function renderTeams() {
             const container = document.getElementById('teams');
-            container.innerHTML = teams.map(team => `
-                <div class="team ${team}">
+            const activeTeams = getActiveTeams();
+            
+            container.innerHTML = activeTeams.map(team => `
+                <div class="team" style="--team-color: ${teamSettings[team].color}">
                     <div class="team-name" data-team="${team}">${nicknames[team]}</div>
                     <div class="score">${scores[team]}</div>
                     <div class="btn-grid">
@@ -441,9 +479,10 @@ We Are Learning!</h1>
         }
 
         function updateRanking() {
-            const sorted = teams.slice().sort((a, b) => scores[b] - scores[a]);
+            const activeTeams = getActiveTeams();
+            const sorted = activeTeams.slice().sort((a, b) => scores[b] - scores[a]);
             document.getElementById('ranking').innerHTML = sorted.map((team, i) => `
-                <div class="rank-item">
+                <div class="rank-item" style="background: linear-gradient(135deg, ${teamSettings[team].color}ee, ${teamSettings[team].color}); box-shadow: 0 6px 20px ${teamSettings[team].color}66;">
                     <div class="rank-num">${i+1} 🥇</div>
                     <div>${nicknames[team]} <span style="font-size: 24px;">${scores[team]} 分</span></div>
                 </div>
@@ -451,15 +490,15 @@ We Are Learning!</h1>
         }
 
         function updateChart() {
+            const activeTeams = getActiveTeams();
             const ctx = document.getElementById('scoreChart').getContext('2d');
             const data = {
-                labels: teams.map(t => nicknames[t]),
+                labels: activeTeams.map(t => nicknames[t]),
                 datasets: [{
                     label: '分數',
-                    data: teams.map(t => scores[t]),
-                    backgroundColor: ['#ff4757', '#3742fa', '#ffa502', '#2ed573'],
-                    borderColor: ['#ff3742', '#2c3efa', '#ff8c00', '#1abc2e'],
-                    borderWidth: 2,
+                     activeTeams.map(t => scores[t]),
+                    backgroundColor: activeTeams.map(t => teamSettings[t].color),
+                    borderWidth: 0,
                     borderRadius: 10,
                     borderSkipped: false,
                 }]
@@ -467,7 +506,7 @@ We Are Learning!</h1>
             if (chart) chart.destroy();
             chart = new Chart(ctx, {
                 type: 'bar',
-                data: data,
+                 data,
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -491,6 +530,37 @@ We Are Learning!</h1>
             });
         }
 
+        // 渲染設定面板的欄位
+        function renderSettingsPanel() {
+            const container = document.getElementById('settingsContainer');
+            container.innerHTML = allTeams.map(team => `
+                <div class="setting-row">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:bold; min-width:80px;">
+                        <input type="checkbox" id="enable-${team}" ${teamSettings[team].enabled ? 'checked' : ''}>
+                        啟用
+                    </label>
+                    <input type="color" id="color-${team}" value="${teamSettings[team].color}" title="選擇隊伍顏色">
+                    <input type="text" id="nick-${team}" value="${nicknames[team]}" placeholder="輸入隊伍名稱">
+                </div>
+            `).join('');
+        }
+
+        // 保存新設定 (包含啟用狀態、顏色、名稱)
+        function saveSettings() {
+            allTeams.forEach(team => {
+                const isEnabled = document.getElementById(`enable-${team}`).checked;
+                const newColor = document.getElementById(`color-${team}`).value;
+                const newNick = document.getElementById(`nick-${team}`).value;
+
+                teamSettings[team].enabled = isEnabled;
+                teamSettings[team].color = newColor;
+                nicknames[team] = newNick || nicknames[team]; // 避免空白
+            });
+            saveData();
+            renderAll();
+            alert('設定已保存並更新畫面！');
+        }
+
         function changeScore(team, delta, reason) {
             scores[team] += delta;
             const time = new Date().toLocaleString('zh-TW');
@@ -509,28 +579,13 @@ We Are Learning!</h1>
             input.value = '';
         }
 
-        function saveNicknames() {
-            teams.forEach(team => {
-                nicknames[team] = document.getElementById(`nick-${team}`).value || nicknames[team];
-            });
-            saveData();
-            renderAll();
-            alert('外號已保存！');
-        }
-
-        function updateNickInputs() {
-            teams.forEach(team => {
-                document.getElementById(`nick-${team}`).value = nicknames[team];
-            });
-        }
-
         function updateLogTable() {
             const tbody = document.querySelector('#logTable tbody');
             tbody.innerHTML = logs.slice(-20).reverse().map(log => `
                 <tr>
                     <td>${log.time}</td>
                     <td style="font-weight: 600;">${log.team}</td>
-                    <td style="color: ${log.change > 0 ? '#28a745' : '#dc3545'}; font-weight: bold; font-size: 16px;">${log.change}</td>
+                    <td style="color: ${log.change > 0 ? '#28a745' : '#dc3545'}; font-weight: bold; font-size: 16px;">${log.change > 0 ? '+'+log.change : log.change}</td>
                     <td>${log.reason}</td>
                 </tr>
             `).join('');
@@ -539,7 +594,7 @@ We Are Learning!</h1>
         function exportCSV() {
             const headers = '時間,組別,變化,原因\n';
             const csv = headers + logs.slice().reverse().map(log => `"${log.time}","${log.team}",${log.change},"${log.reason.replace(/"/g, '""')}"`).join('\n');
-            const blob = new Blob([new Uint8Array([0xEF,0xBB,0xBF]), csv], { type: 'text/csv;charset=utf-8;' }); // BOM for Excel
+            const blob = new Blob([new Uint8Array([0xEF,0xBB,0xBF]), csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = `計分紀錄_${new Date().toISOString().slice(0,10)}.csv`;
@@ -547,11 +602,27 @@ We Are Learning!</h1>
         }
 
         function resetAll() {
-            if (confirm('⚠️ 確定重設全部？\n• 分數歸零\n• Log 清空\n• 外號還原預設')) {
-                scores = { red: 0, blue: 0, yellow: 0, green: 0 };
-                nicknames = { red: '紅組', blue: '藍組', yellow: '黃組', green: '綠組' };
+            if (confirm('⚠️ 確定重設全部？\n• 分數歸零\n• Log 清空\n• 設定還原預設')) {
+                scores = { team1: 0, team2: 0, team3: 0, team4: 0, team5: 0, team6: 0 };
+                nicknames = { 
+                    team1: '紅組', team2: '藍組', team3: '黃組', 
+                    team4: '綠組', team5: '紫組', team6: '橘組' 
+                };
+                teamSettings = {
+                    team1: { enabled: true, color: '#ff4757' },
+                    team2: { enabled: true, color: '#3742fa' },
+                    team3: { enabled: true, color: '#ffa502' },
+                    team4: { enabled: true, color: '#2ed573' },
+                    team5: { enabled: false, color: '#9b59b6' },
+                    team6: { enabled: false, color: '#e67e22' }
+                };
                 logs = [];
-                localStorage.clear();
+                // 清除針對新版的 localStorage 記錄
+                localStorage.removeItem('scores_v2');
+                localStorage.removeItem('nicknames_v2');
+                localStorage.removeItem('settings_v2');
+                localStorage.removeItem('logs_v2');
+                
                 renderAll();
             }
         }
