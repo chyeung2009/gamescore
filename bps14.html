@@ -93,7 +93,10 @@
         
         .available-numbers span {
             background: rgba(238, 238, 238, 0.85);
-            padding: 2px 5px;
+            padding: 2px 0; /* 移除左右 padding，靠 fixed width 撐開 */
+            width: 28px; /* 固定候選號碼闊度 */
+            text-align: center; /* 文字置中 */
+            display: inline-block;
             border-radius: 4px;
             font-size: 0.75rem;
             transition: all 0.3s;
@@ -113,7 +116,8 @@
 
         .display-area {
             width: clamp(300px, 60vw, 640px);
-            aspect-ratio: 16 / 10;
+            aspect-ratio: 16 / 9; /* 改為 16:9 */
+            min-height: 320px; /* 加入 min-height 確保高度唔會縮到太扁，避免內容撞上邊框 */
             height: auto;
             border: 8px solid var(--primary-orange);
             border-radius: 20px;
@@ -127,7 +131,7 @@
             overflow: hidden;
             position: relative;
             flex-direction: column;
-            padding: 10px 10px 40px 10px; /* 加大底部 padding，預留空間給倒數器避免遮擋 */
+            padding: 20px 10px 45px 10px; /* 加大頂部同底部 padding，等內容置中得靚啲 */
         }
 
         .countdown {
@@ -153,9 +157,9 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            height: 100%;
+            flex: 1; /* 取代 height，畀佢自動伸展填滿可用空間 */
             justify-content: center;
-            margin-bottom: 25px;
+            /* 移除了原本的 margin-bottom: 25px; 因為佢會將所有內容向上推，導致撞落上面個 border */
         }
 
         .display-area img {
@@ -164,9 +168,17 @@
             object-fit: cover;
             border-radius: 10px;
             border: 3px solid var(--primary-blue);
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            margin-top: 5px; /* 加少少頂部空間，避免太貼頂 */
             display: block;
             background-color: #eee;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .display-area img:hover {
+            transform: scale(1.05); /* 滑鼠懸停時微放大提示 */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         #spin-number {
@@ -285,14 +297,15 @@
             font-weight: bold;
             color: var(--primary-orange);
             background: #fff;
-            padding: 10px 20px;
+            padding: 10px 0; /* 移除左右 padding */
+            width: 80px; /* 固定已選號碼闊度，確保單雙位數一樣闊 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
             border-radius: 10px;
             border: 3px solid var(--primary-blue);
             box-shadow: 0 4px 8px rgba(0,71,255,0.1);
-            /* 移除了 animation: popIn 避免每次更新時全部號碼又大又細 */
         }
-
-        /* 移除了 @keyframes popIn */
 
         /* Modals */
         .modal {
@@ -361,6 +374,65 @@
             border-radius: 5px;
         }
 
+        /* 放大圖片 Modal 的樣式 */
+        #image-modal {
+            z-index: 2000; /* 確保在最上層 */
+        }
+
+        .image-zoom-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            width: auto;
+            max-width: 90vw;
+            border: none;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .image-zoom-content img {
+            max-width: 100%;
+            max-height: 60vh;
+            border-radius: 10px;
+            object-fit: contain;
+            border: 4px solid var(--primary-blue);
+        }
+
+        .image-zoom-desc {
+            margin-top: 15px;
+            font-size: 1.8rem;
+            color: var(--primary-blue);
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .close-img-btn {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .close-img-btn:hover {
+            background-color: #c82333;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             body {
@@ -422,6 +494,15 @@
         </div>
     </div>
 
+    <!-- Image Zoom Modal -->
+    <div id="image-modal" class="modal" onclick="closeImageModal()">
+        <div class="image-zoom-content" onclick="event.stopPropagation()">
+            <button class="close-img-btn" onclick="closeImageModal()">×</button>
+            <img id="enlarged-img" src="" alt="Enlarged Result">
+            <div id="enlarged-desc" class="image-zoom-desc"></div>
+        </div>
+    </div>
+
     <!-- Main Layout -->
     <div class="left-panel">
         <div class="left-top">
@@ -456,6 +537,8 @@
     </div>
 
     <script>
+        const LOCAL_STORAGE_KEY = 'bingo_game_state';
+
         // Global Preferences
         let preferences = {
             min: 1,
@@ -468,8 +551,8 @@
         let drawnNumbers = [];
         let isSpinning = false;
         let spinInterval;
-        let hideCountdownTimeout; // 新增這行：用來記錄並清除隱藏倒數計時的 timeout
-        let imageFallbackTimeout; // 新增這行：用來記錄圖片載入逾時的 timeout 避免 race condition
+        let hideCountdownTimeout; 
+        let imageFallbackTimeout; 
 
         // DOM Elements
         const availableDiv = document.getElementById('available-numbers');
@@ -481,18 +564,80 @@
         const confirmModal = document.getElementById('confirm-modal');
         const errorMsg = document.getElementById('setting-error');
 
-        // New DOM Elements
         const countdownEl = document.getElementById('countdown');
         const descEl = document.getElementById('result-desc');
         const flipContainer = document.getElementById('flip-container');
+        
+        const imageModal = document.getElementById('image-modal');
+        const enlargedImg = document.getElementById('enlarged-img');
+        const enlargedDesc = document.getElementById('enlarged-desc');
 
-        // 模擬的相片描述，可隨時替換成你自己的 data mapping
         function getDescription(num) {
             return `這是號碼 ${num} 的專屬相片描述`;
         }
 
-        // Initialize Game
-        function init() {
+        resultImage.onclick = function() {
+            if (isSpinning || resultImage.src.includes('via.placeholder.com')) return;
+            enlargedImg.src = resultImage.src;
+            enlargedDesc.textContent = descEl.textContent;
+            imageModal.style.display = 'flex';
+        };
+
+        function closeImageModal() {
+            imageModal.style.display = 'none';
+        }
+
+        // --- Local Storage Integration ---
+        function loadGameState() {
+            try {
+                // 嘗試從 localStorage 讀取
+                const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    preferences = data.preferences || preferences;
+                    availableNumbers = data.availableNumbers || [];
+                    drawnNumbers = data.drawnNumbers || [];
+                    
+                    updateUI();
+                    resetDisplay();
+                } else {
+                    // 如果冇紀錄，就由頭初始化
+                    initAndSave();
+                }
+            } catch (e) {
+                // 防呆：如果 iframe 預覽環境 block 咗 localStorage，就跌入呢度純行 memory
+                console.warn("無法讀取 LocalStorage (可能處於預覽環境或無痕模式限制):", e);
+                fallbackMemoryInit();
+            }
+        }
+
+        function saveGameState() {
+            const data = {
+                preferences,
+                availableNumbers,
+                drawnNumbers
+            };
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+            } catch (e) {
+                console.warn("無法寫入 LocalStorage:", e);
+            }
+        }
+
+        // 初始化並強制覆蓋本地進度 (適用於 Reset)
+        function initAndSave() {
+            availableNumbers = [];
+            drawnNumbers = [];
+            for (let i = preferences.min; i <= preferences.max; i++) {
+                availableNumbers.push(i);
+            }
+            updateUI();
+            resetDisplay();
+            saveGameState(); // 嘗試儲存
+        }
+        
+        // 如果 LocalStorage 完全被 Block 嘅後備方案 (純 Memory 行行)
+        function fallbackMemoryInit() {
             availableNumbers = [];
             drawnNumbers = [];
             for (let i = preferences.min; i <= preferences.max; i++) {
@@ -502,9 +647,7 @@
             resetDisplay();
         }
 
-        // Update Left and Right panel numbers
         function updateUI() {
-            // Update available numbers
             availableDiv.innerHTML = '';
             availableNumbers.forEach(num => {
                 let span = document.createElement('span');
@@ -512,7 +655,6 @@
                 availableDiv.appendChild(span);
             });
 
-            // Update drawn numbers
             drawnDiv.innerHTML = '';
             drawnNumbers.forEach(num => {
                 let div = document.createElement('div');
@@ -521,7 +663,6 @@
                 drawnDiv.appendChild(div);
             });
 
-            // Check game over state
             if (availableNumbers.length === 0) {
                 startBtn.disabled = true;
                 startBtn.textContent = '已抽完';
@@ -535,15 +676,14 @@
             spinNumberText.style.display = 'inline-block';
             spinNumberText.textContent = 'READY';
             resultImage.style.display = 'block';
-            resultImage.onload = null; // 清除可能殘留的 onload 事件
+            resultImage.onload = null; 
             resultImage.src = 'https://via.placeholder.com/400x400/EBF1FF/0047FF?text=READY';
             descEl.textContent = '等待開始...';
             
-            clearTimeout(hideCountdownTimeout); // 重置時也清一下
+            clearTimeout(hideCountdownTimeout); 
             countdownEl.style.display = 'none';
         }
 
-        // Main Draw Logic
         function startDraw() {
             if (isSpinning || availableNumbers.length === 0) return;
             
@@ -551,22 +691,18 @@
             startBtn.disabled = true;
             startBtn.textContent = '抽獎中...';
             
-            // 重要防呆：清除前一次抽獎殘留的 onload 事件，避免被 setInterval 瘋狂觸發
             resultImage.onload = null; 
-            
-            // 每次開始抽獎前，確保清除所有舊的 timeouts，防止 Async Race Condition
             clearTimeout(hideCountdownTimeout);
             clearTimeout(imageFallbackTimeout);
             
             countdownEl.style.display = 'block';
             countdownEl.textContent = preferences.spinDurationSeconds.toFixed(1) + 's';
             
-            spinNumberText.classList.add('flip'); // 只對數字加 flip 效果
+            spinNumberText.classList.add('flip'); 
 
             const durationMs = preferences.spinDurationSeconds * 1000;
             const startTime = Date.now();
 
-            // Start rapid switching effect
             spinInterval = setInterval(() => {
                 const elapsed = Date.now() - startTime;
                 let remain = (durationMs - elapsed) / 1000;
@@ -585,20 +721,17 @@
                 
                 spinNumberText.textContent = tempNum;
                 descEl.textContent = getDescription(tempNum);
-                // 用較小尺寸的圖片以減輕連續載入時的網絡負擔 (200x200)
                 resultImage.src = `https://picsum.photos/seed/${tempNum}/200/200`;
-            }, 150); // 150ms 跳動一次
+            }, 150); 
         }
 
         function finishDraw() {
             clearInterval(spinInterval);
-            spinNumberText.classList.remove('flip'); // 移除數字的 flip 效果
+            spinNumberText.classList.remove('flip'); 
 
-            // Select final winner
             const winIndex = Math.floor(Math.random() * availableNumbers.length);
             const winNumber = availableNumbers.splice(winIndex, 1)[0];
             
-            // 防呆：如果取不到號碼 (例如陣列已空)，直接退出
             if (winNumber === undefined) {
                 isSpinning = false;
                 updateUI();
@@ -606,27 +739,26 @@
             }
 
             drawnNumbers.push(winNumber);
+            
+            // 每次抽出號碼後，自動儲存遊戲進度到本地
+            saveGameState();
 
-            // Display final result
             spinNumberText.textContent = winNumber;
             descEl.textContent = getDescription(winNumber);
             countdownEl.textContent = '0.0s';
             
-            // Load final high-res image
             const imgUrl = `https://picsum.photos/seed/${winNumber}/400/400`;
             
             resultImage.onload = () => {
-                resultImage.onload = null; // 執行完後馬上自我清除
-                clearTimeout(imageFallbackTimeout); // 圖片載入成功，清除 fallback timeout
+                resultImage.onload = null; 
+                clearTimeout(imageFallbackTimeout); 
                 updateUI();
                 isSpinning = false;
-                // 延遲兩秒後隱藏倒數器，並記錄 timeout ID
                 hideCountdownTimeout = setTimeout(() => { countdownEl.style.display = 'none'; }, 2000);
             };
             
             resultImage.src = imgUrl;
 
-            // Fallback if image load takes too long (1.5秒後強制解除鎖定)
             imageFallbackTimeout = setTimeout(() => {
                 updateUI();
                 isSpinning = false; 
@@ -663,10 +795,9 @@
             preferences.spinDurationSeconds = newTime;
             
             closeSettings();
-            init(); 
+            initAndSave(); // 儲存設定並重置遊戲進度
         }
 
-        // --- Custom Confirm Reset ---
         function confirmReset() {
             closeSettings();
             confirmModal.style.display = 'flex';
@@ -678,27 +809,17 @@
 
         function executeReset() {
             closeConfirm();
-            init();
+            initAndSave(); 
         }
 
-        // 確保 DOM 完全載入後才執行初始化，避免空白畫面
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
+            document.addEventListener('DOMContentLoaded', loadGameState);
         } else {
-            init();
+            loadGameState();
         }
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
 
 
 
