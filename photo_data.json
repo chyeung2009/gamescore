@@ -2,311 +2,373 @@
     {
         "number": 1,
         "file_path": "images/8/1 Mario.jpg",
-        "description": "Mario"
+        "description": "Mario",
+        "class": "格局8"
     },
     {
         "number": 2,
         "file_path": "images/8/2 Party Room.jpg",
-        "description": "Party Room"
+        "description": "Party Room",
+        "class": "格局8"
     },
     {
         "number": 3,
         "file_path": "images/8/3 出發!.jpg",
-        "description": "出發!"
+        "description": "出發!",
+        "class": "格局8"
     },
     {
         "number": 4,
         "file_path": "images/8/4 大排檔.jpg",
-        "description": "大排檔"
+        "description": "大排檔",
+        "class": "格局8"
     },
     {
         "number": 5,
         "file_path": "images/8/5 回到過去.jpg",
-        "description": "回到過去"
+        "description": "回到過去",
+        "class": "格局8"
     },
     {
         "number": 6,
         "file_path": "images/8/6 啤牌.jpg",
-        "description": "啤牌"
+        "description": "啤牌",
+        "class": "格局8"
     },
     {
         "number": 7,
         "file_path": "images/8/7 乾杯.jpg",
-        "description": "乾杯"
+        "description": "乾杯",
+        "class": "格局8"
     },
     {
         "number": 8,
         "file_path": "images/8/8 搶錢.jpg",
-        "description": "搶錢"
+        "description": "搶錢",
+        "class": "格局8"
     },
     {
         "number": 9,
         "file_path": "images/8/9 爽!.jpg",
-        "description": "爽!"
+        "description": "爽!",
+        "class": "格局8"
     },
     {
         "number": 10,
         "file_path": "images/8/10 我是畫家.jpg",
-        "description": "我是畫家"
+        "description": "我是畫家",
+        "class": "格局8"
     },
     {
         "number": 11,
         "file_path": "images/9/11 Chok 比你睇.jpg",
-        "description": "Chok 比你睇"
+        "description": "Chok 比你睇",
+        "class": "格局9"
     },
     {
         "number": 12,
         "file_path": "images/9/12 寵物小精靈.jpg",
-        "description": "寵物小精靈"
+        "description": "寵物小精靈",
+        "class": "格局9"
     },
     {
         "number": 13,
         "file_path": "images/9/13 多囡.jpg",
-        "description": "多囡"
+        "description": "多囡",
+        "class": "格局9"
     },
     {
         "number": 14,
         "file_path": "images/9/14 哥就是型.jpg",
-        "description": "哥就是型"
+        "description": "哥就是型",
+        "class": "格局9"
     },
     {
         "number": 15,
         "file_path": "images/9/15 紅綠.jpg",
-        "description": "紅綠"
+        "description": "紅綠",
+        "class": "格局9"
     },
     {
         "number": 16,
         "file_path": "images/9/16 九九九.jpg",
-        "description": "九九九"
+        "description": "九九九",
+        "class": "格局9"
     },
     {
         "number": 17,
         "file_path": "images/9/17 隻揪.jpg",
-        "description": "隻揪"
+        "description": "隻揪",
+        "class": "格局9"
     },
     {
         "number": 18,
         "file_path": "images/9/18 史迪仔.jpg",
-        "description": "史迪仔"
+        "description": "史迪仔",
+        "class": "格局9"
     },
     {
         "number": 19,
         "file_path": "images/10/19 阿彌陀佛.jpg",
-        "description": "阿彌陀佛"
+        "description": "阿彌陀佛",
+        "class": "格局10"
     },
     {
         "number": 20,
         "file_path": "images/10/20 剝光豬.jpg",
-        "description": "剝光豬"
+        "description": "剝光豬",
+        "class": "格局10"
     },
     {
         "number": 21,
         "file_path": "images/10/21 夠鐘翻工.jpg",
-        "description": "夠鐘翻工"
+        "description": "夠鐘翻工",
+        "class": "格局10"
     },
     {
         "number": 22,
         "file_path": "images/10/22 霍金.jpg",
-        "description": "霍金"
+        "description": "霍金",
+        "class": "格局10"
     },
     {
         "number": 23,
         "file_path": "images/10/23 民族風.jpg",
-        "description": "民族風"
+        "description": "民族風",
+        "class": "格局10"
     },
     {
         "number": 24,
         "file_path": "images/10/24 你認我唔到.jpg",
-        "description": "你認我唔到"
+        "description": "你認我唔到",
+        "class": "格局10"
     },
     {
         "number": 25,
         "file_path": "images/10/25 女皇出巡.jpg",
-        "description": "女皇出巡"
+        "description": "女皇出巡",
+        "class": "格局10"
     },
     {
         "number": 26,
         "file_path": "images/10/26 排排坐.jpg",
-        "description": "排排坐"
+        "description": "排排坐",
+        "class": "格局10"
     },
     {
         "number": 27,
         "file_path": "images/10/27 濕晒.jpg",
-        "description": "濕晒"
+        "description": "濕晒",
+        "class": "格局10"
     },
     {
         "number": 28,
         "file_path": "images/10/28 十字死光.jpg",
-        "description": "十字死光"
+        "description": "十字死光",
+        "class": "格局10"
     },
     {
         "number": 29,
         "file_path": "images/10/29 食唔死當羸.jpg",
-        "description": "食唔死當羸"
+        "description": "食唔死當羸",
+        "class": "格局10"
     },
     {
         "number": 30,
         "file_path": "images/10/30 躺平.jpg",
-        "description": "躺平"
+        "description": "躺平",
+        "class": "格局10"
     },
     {
         "number": 31,
         "file_path": "images/10/31 無敵星星.jpg",
-        "description": "無敵星星"
+        "description": "無敵星星",
+        "class": "格局10"
     },
     {
         "number": 32,
         "file_path": "images/11/32 地盤工.jpg",
-        "description": "地盤工"
+        "description": "地盤工",
+        "class": "格局11"
     },
     {
         "number": 33,
         "file_path": "images/11/33 多左個.jpg",
-        "description": "多左個"
+        "description": "多左個",
+        "class": "格局11"
     },
     {
         "number": 34,
         "file_path": "images/11/34 禮物小姐.jpg",
-        "description": "禮物小姐"
+        "description": "禮物小姐",
+        "class": "格局11"
     },
     {
         "number": 35,
         "file_path": "images/11/35 你永遠與我們同在.jpg",
-        "description": "你永遠與我們同在"
+        "description": "你永遠與我們同在",
+        "class": "格局11"
     },
     {
         "number": 36,
         "file_path": "images/11/36 上流人士.PNG",
-        "description": "上流人士"
+        "description": "上流人士",
+        "class": "格局11"
     },
     {
         "number": 37,
         "file_path": "images/11/37 生意興隆.PNG",
-        "description": "生意興隆"
+        "description": "生意興隆",
+        "class": "格局11"
     },
     {
         "number": 38,
         "file_path": "images/11/38 我要抱抱.jpg",
-        "description": "我要抱抱"
+        "description": "我要抱抱",
+        "class": "格局11"
     },
     {
         "number": 39,
         "file_path": "images/11/39 一盅兩件.PNG",
-        "description": "一盅兩件"
+        "description": "一盅兩件",
+        "class": "格局11"
     },
     {
         "number": 40,
         "file_path": "images/11/40 自由體操.PNG",
-        "description": "自由體操"
+        "description": "自由體操",
+        "class": "格局11"
     },
     {
         "number": 41,
         "file_path": "images/12/41 BBQ.jpeg",
-        "description": "BBQ"
+        "description": "BBQ",
+        "class": "格局12"
     },
     {
         "number": 42,
         "file_path": "images/12/42 白悟空.jpeg",
-        "description": "白悟空"
+        "description": "白悟空",
+        "class": "格局12"
     },
     {
         "number": 43,
         "file_path": "images/12/43 龍出沒注意!.jpeg",
-        "description": "龍出沒注意!"
+        "description": "龍出沒注意!",
+        "class": "格局12"
     },
     {
         "number": 44,
         "file_path": "images/12/44 沙漠.jpeg",
-        "description": "沙漠"
+        "description": "沙漠",
+        "class": "格局12"
     },
     {
         "number": 45,
         "file_path": "images/12/45 生日會.jpeg",
-        "description": "生日會"
+        "description": "生日會",
+        "class": "格局12"
     },
     {
         "number": 46,
         "file_path": "images/12/46 住家飯.jpeg",
-        "description": "住家飯"
+        "description": "住家飯",
+        "class": "格局12"
     },
     {
         "number": 47,
         "file_path": "images/13/47 Rock and Roll.jpeg",
-        "description": "Rock and Roll"
+        "description": "Rock and Roll",
+        "class": "格局13"
     },
     {
         "number": 48,
         "file_path": "images/13/48 呢單野佢跟開.jpeg",
-        "description": "呢單野佢跟開"
+        "description": "呢單野佢跟開",
+        "class": "格局13"
     },
     {
         "number": 49,
         "file_path": "images/13/49 沙灘.jpeg",
-        "description": "沙灘"
+        "description": "沙灘",
+        "class": "格局13"
     },
     {
         "number": 50,
         "file_path": "images/13/50 塗鴉.jpeg",
-        "description": "塗鴉"
+        "description": "塗鴉",
+        "class": "格局13"
     },
     {
         "number": 51,
         "file_path": "images/13/51 小綿羊.jpeg",
-        "description": "小綿羊"
+        "description": "小綿羊",
+        "class": "格局13"
     },
     {
         "number": 52,
         "file_path": "images/13/52 豬頭.jpeg",
-        "description": "豬頭"
+        "description": "豬頭",
+        "class": "格局13"
     },
     {
         "number": 53,
         "file_path": "images/14/53 80年代.jpeg",
-        "description": "80年代"
+        "description": "80年代",
+        "class": "格局14"
     },
     {
         "number": 54,
         "file_path": "images/14/54 冰雪奇緣.jpeg",
-        "description": "冰雪奇緣"
+        "description": "冰雪奇緣",
+        "class": "格局14"
     },
     {
         "number": 55,
         "file_path": "images/14/55 豪門盛宴.jpeg",
-        "description": "豪門盛宴"
+        "description": "豪門盛宴",
+        "class": "格局14"
     },
     {
         "number": 56,
         "file_path": "images/14/56 合巹交交交杯.jpeg",
-        "description": "合巹交交交杯"
+        "description": "合巹交交交杯",
+        "class": "格局14"
     },
     {
         "number": 57,
         "file_path": "images/14/57 酒吧.jpeg",
-        "description": "酒吧"
+        "description": "酒吧",
+        "class": "格局14"
     },
     {
         "number": 58,
         "file_path": "images/14/58 酒精度數 360度.jpeg",
-        "description": "酒精度數 360度"
+        "description": "酒精度數 360度",
+        "class": "格局14"
     },
     {
         "number": 59,
         "file_path": "images/14/59 龍之怒.jpeg",
-        "description": "龍之怒"
+        "description": "龍之怒",
+        "class": "格局14"
     },
     {
         "number": 60,
         "file_path": "images/14/60 全黑.jpeg",
-        "description": "全黑"
+        "description": "全黑",
+        "class": "格局14"
     },
     {
         "number": 61,
         "file_path": "images/14/61 手拖手.jpeg",
-        "description": "手拖手"
+        "description": "手拖手",
+        "class": "格局14"
     },
     {
         "number": 62,
         "file_path": "images/14/62 吓吓吓.jpeg",
-        "description": "吓吓吓"
+        "description": "吓吓吓",
+        "class": "格局14"
     }
 ]
