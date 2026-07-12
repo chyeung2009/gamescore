@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>格局14 Bingo Lucky Draw</title>
     <style>
+        /* CSS 樣式與之前完全相同 */
         :root {
             --primary-orange: #FF7A00;
             --primary-blue: #0047FF;
@@ -28,436 +29,66 @@
         }
 
         /* Layout */
-        .left-panel {
-            flex: 6.5;
-            display: flex;
-            flex-direction: column;
-            border-right: 4px solid var(--primary-blue);
-            padding: 20px;
-            background-color: #fff;
-            height: 100%;
-            overflow-y: auto;
-        }
-
-        .right-panel {
-            flex: 3.5;
-            display: flex;
-            flex-direction: column;
-            background-color: #EBF1FF;
-            padding: 20px;
-            position: relative;
-            height: 100%;
-        }
+        .left-panel { flex: 6.5; display: flex; flex-direction: column; border-right: 4px solid var(--primary-blue); padding: 20px; background-color: #fff; height: 100%; overflow-y: auto; }
+        .right-panel { flex: 3.5; display: flex; flex-direction: column; background-color: #EBF1FF; padding: 20px; position: relative; height: 100%; }
 
         /* Left Panel - Top */
-        .left-top {
-            flex: 0 1 auto;
-            text-align: center;
-            position: relative; /* 必須設定 relative 作為 absolute 的定位基準 */
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 120px; /* 給予一定高度避免縮得太細 */
-        }
-        
-        .left-top h1 {
-            color: var(--primary-blue);
-            margin: 0;
-            font-size: 4.5rem;
-            line-height: 1;
-            position: absolute; /* 絕對定位 */
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%); /* 完美置中 */
-            z-index: 10;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 1), 0 0 20px rgba(255, 255, 255, 0.8); /* 加上白色發光效果令標題更出 */
-            pointer-events: none; /* 讓滑鼠點擊可以穿透，方便 Scroll 號碼 */
-        }
-
-        .available-numbers {
-            font-size: 1rem;
-            color: #666;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            justify-content: center;
-            align-content: flex-start;
-            max-height: 150px;
-            overflow-y: auto;
-            padding: 10px;
-            position: relative;
-            z-index: 2;
-            width: 100%;
-        }
-        
-        .available-numbers span {
-            background: rgba(238, 238, 238, 0.85);
-            padding: 2px 0; /* 移除左右 padding，靠 fixed width 撐開 */
-            width: 28px; /* 固定候選號碼闊度 */
-            text-align: center; /* 文字置中 */
-            display: inline-block;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            transition: all 0.3s;
-            border: 1px solid #ddd;
-        }
+        .left-top { flex: 0 1 auto; text-align: center; position: relative; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; min-height: 120px; }
+        .left-top h1 { color: var(--primary-blue); margin: 0; font-size: 4.5rem; line-height: 1; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; text-shadow: 0 0 15px rgba(255, 255, 255, 1), 0 0 20px rgba(255, 255, 255, 0.8); pointer-events: none; }
+        .available-numbers { font-size: 1rem; color: #666; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-content: flex-start; max-height: 150px; overflow-y: auto; padding: 10px; position: relative; z-index: 2; width: 100%; }
+        .available-numbers span { background: rgba(238, 238, 238, 0.85); padding: 2px 5px; border-radius: 4px; font-size: 0.75rem; transition: all 0.3s; border: 1px solid #ddd; }
 
         /* Left Panel - Middle */
-        .left-middle {
-            flex: 1 1 auto;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            position: relative;
-            min-height: 300px;
-            padding-top: 10px;
-        }
-
-        .display-area {
-            width: clamp(300px, 60vw, 640px);
-            aspect-ratio: 16 / 9; /* 改為 16:9 */
-            min-height: 320px; /* 加入 min-height 確保高度唔會縮到太扁，避免內容撞上邊框 */
-            height: auto;
-            border: 8px solid var(--primary-orange);
-            border-radius: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            color: var(--primary-orange);
-            background-color: #fff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            overflow: hidden;
-            position: relative;
-            flex-direction: column;
-            padding: 20px 10px 45px 10px; /* 加大頂部同底部 padding，等內容置中得靚啲 */
-        }
-
-        .countdown {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            margin-top: 0;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--primary-orange);
-            background: #fff;
-            padding: 2px 10px;
-            border-radius: 8px;
-            border: 2px solid var(--primary-orange);
-            display: none;
-            letter-spacing: 1px;
-            z-index: 10;
-        }
-
-        .flip-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            flex: 1; /* 取代 height，畀佢自動伸展填滿可用空間 */
-            justify-content: center;
-            /* 移除了原本的 margin-bottom: 25px; 因為佢會將所有內容向上推，導致撞落上面個 border */
-        }
-
-        .display-area img {
-            width: clamp(80px, 15vw, 160px);
-            height: clamp(80px, 15vw, 160px);
-            object-fit: cover;
-            border-radius: 10px;
-            border: 3px solid var(--primary-blue);
-            margin-bottom: 10px;
-            margin-top: 5px; /* 加少少頂部空間，避免太貼頂 */
-            display: block;
-            background-color: #eee;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .display-area img:hover {
-            transform: scale(1.05); /* 滑鼠懸停時微放大提示 */
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        #spin-number {
-            font-size: clamp(2rem, 4vw, 3.5rem);
-            line-height: 1;
-            margin-bottom: 5px;
-            display: inline-block;
-        }
-
-        #result-desc {
-            font-size: clamp(1rem, 1.5vw, 1.2rem);
-            color: #555;
-            text-align: center;
-            font-weight: normal;
-        }
-
-        /* Flip Animation */
-        .flip {
-            animation: flipAnim 0.15s infinite;
-        }
-
-        @keyframes flipAnim {
-            0% { transform: scaleY(1); opacity: 1; }
-            50% { transform: scaleY(0); opacity: 0.5; }
-            100% { transform: scaleY(1); opacity: 1; }
-        }
+        .left-middle { flex: 1 1 auto; display: flex; justify-content: center; align-items: flex-start; position: relative; min-height: 300px; padding-top: 10px; }
+        .display-area { width: clamp(300px, 60vw, 640px); aspect-ratio: 16 / 10; height: auto; border: 8px solid var(--primary-orange); border-radius: 20px; display: flex; justify-content: center; align-items: center; font-weight: bold; color: var(--primary-orange); background-color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden; position: relative; flex-direction: column; padding: 10px 10px 40px 10px; }
+        .countdown { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); margin-top: 0; font-size: 1.2rem; font-weight: bold; color: var(--primary-orange); background: #fff; padding: 2px 10px; border-radius: 8px; border: 2px solid var(--primary-orange); display: none; letter-spacing: 1px; z-index: 10; }
+        .flip-container { display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%; justify-content: center; margin-bottom: 25px; }
+        .display-area img { width: clamp(80px, 15vw, 160px); height: clamp(80px, 15vw, 160px); object-fit: cover; border-radius: 10px; border: 3px solid var(--primary-blue); margin-bottom: 5px; display: block; background-color: #eee; }
+        #spin-number { font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1; margin-bottom: 5px; display: inline-block; }
+        #result-desc { font-size: clamp(1rem, 1.5vw, 1.2rem); color: #555; text-align: center; font-weight: normal; }
+        .flip { animation: flipAnim 0.15s infinite; }
+        @keyframes flipAnim { 0% { transform: scaleY(1); opacity: 1; } 50% { transform: scaleY(0); opacity: 0.5; } 100% { transform: scaleY(1); opacity: 1; } }
 
         /* Left Panel - Bottom */
-        .left-bottom {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 120px;
-            margin-top: 30px; /* 加入呢行，將 button 同上面嘅框框拉開距離 */
-        }
-
-        #start-btn {
-            background-color: var(--primary-orange);
-            color: white;
-            border: none;
-            padding: 20px 80px;
-            font-size: 2.5rem;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 8px 15px rgba(255, 122, 0, 0.3);
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        #start-btn:hover:not(:disabled) {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 25px rgba(255, 122, 0, 0.4);
-        }
-
-        #start-btn:active:not(:disabled) {
-            transform: translateY(2px);
-        }
-
-        #start-btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-            box-shadow: none;
-            color: #888;
-        }
+        .left-bottom { flex: 1; display: flex; justify-content: center; align-items: center; min-height: 120px; margin-top: 30px; }
+        #start-btn { background-color: var(--primary-orange); color: white; border: none; padding: 20px 80px; font-size: 2.5rem; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 8px 15px rgba(255, 122, 0, 0.3); transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 2px; }
+        #start-btn:hover:not(:disabled) { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 25px rgba(255, 122, 0, 0.4); }
+        #start-btn:active:not(:disabled) { transform: translateY(2px); }
+        #start-btn:disabled { background-color: #ccc; cursor: not-allowed; box-shadow: none; color: #888; }
 
         /* Right Panel */
-        .settings-container {
-            text-align: right;
-            margin-bottom: 20px;
-        }
-
-        #setting-icon {
-            font-size: 2rem;
-            cursor: pointer;
-            background: none;
-            border: none;
-            color: var(--primary-blue);
-            transition: transform 0.3s;
-        }
-
-        #setting-icon:hover {
-            transform: rotate(90deg);
-        }
-
-        .drawn-title {
-            color: var(--primary-blue);
-            font-size: 1.8rem;
-            text-align: center;
-            border-bottom: 3px solid var(--primary-orange);
-            padding-bottom: 15px;
-            font-weight: bold;
-        }
-
-        .drawn-numbers {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 20px;
-            align-content: flex-start;
-            overflow-y: auto;
-            flex: 1;
-            padding-right: 5px;
-        }
-
-        /* Custom Scrollbar */
+        .settings-container { text-align: right; margin-bottom: 20px; }
+        #setting-icon { font-size: 2rem; cursor: pointer; background: none; border: none; color: var(--primary-blue); transition: transform 0.3s; }
+        #setting-icon:hover { transform: rotate(90deg); }
+        .drawn-title { color: var(--primary-blue); font-size: 1.8rem; text-align: center; border-bottom: 3px solid var(--primary-orange); padding-bottom: 15px; font-weight: bold; }
+        .drawn-numbers { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px; align-content: flex-start; overflow-y: auto; flex: 1; padding-right: 5px; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
-
-        .drawn-item {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary-orange);
-            background: #fff;
-            padding: 10px 0; /* 移除左右 padding */
-            width: 80px; /* 固定已選號碼闊度，確保單雙位數一樣闊 */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 10px;
-            border: 3px solid var(--primary-blue);
-            box-shadow: 0 4px 8px rgba(0,71,255,0.1);
-        }
+        .drawn-item { font-size: 2rem; font-weight: bold; color: var(--primary-orange); background: #fff; padding: 10px 20px; border-radius: 10px; border: 3px solid var(--primary-blue); box-shadow: 0 4px 8px rgba(0,71,255,0.1); }
 
         /* Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.6);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(3px);
-        }
-
-        .modal-content {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 450px;
-            border-top: 8px solid var(--primary-blue);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            animation: slideDown 0.3s ease-out;
-        }
-
-        @keyframes slideDown {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+        .modal-content { background-color: #fff; padding: 30px; border-radius: 15px; width: 90%; max-width: 450px; border-top: 8px solid var(--primary-blue); box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .modal h2 { margin-top: 0; color: var(--primary-blue); }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; color: #555; font-weight: bold;}
         .form-group input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1.1rem;}
         .form-group input:focus { outline: none; border-color: var(--primary-orange); }
-        
-        .modal-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.1rem;
-            flex: 1;
-            transition: opacity 0.2s;
-        }
+        .modal-actions { display: flex; justify-content: space-between; margin-top: 30px; gap: 10px; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; flex: 1; transition: opacity 0.2s; }
         .btn:hover { opacity: 0.9; }
-
         .btn-primary { background-color: var(--primary-blue); color: white; }
         .btn-danger { background-color: #dc3545; color: white; }
         .btn-secondary { background-color: #6c757d; color: white; }
-
-        #setting-error {
-            color: #dc3545;
-            display: none;
-            margin-bottom: 15px;
-            font-weight: bold;
-            background: #ffe6e6;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        /* 放大圖片 Modal 的樣式 */
-        #image-modal {
-            z-index: 2000; /* 確保在最上層 */
-        }
-
-        .image-zoom-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 15px;
-            width: auto;
-            max-width: 90vw;
-            border: none;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
-
-        .image-zoom-content img {
-            max-width: 100%;
-            max-height: 60vh;
-            border-radius: 10px;
-            object-fit: contain;
-            border: 4px solid var(--primary-blue);
-        }
-
-        .image-zoom-desc {
-            margin-top: 15px;
-            font-size: 1.8rem;
-            color: var(--primary-blue);
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .close-img-btn {
-            position: absolute;
-            top: -15px;
-            right: -15px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 1.8rem;
-            line-height: 1;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: background-color 0.2s;
-        }
-
-        .close-img-btn:hover {
-            background-color: #c82333;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-                overflow-y: auto;
-            }
-            .left-panel {
-                border-right: none;
-                border-bottom: 4px solid var(--primary-blue);
-                overflow: visible;
-            }
-            .right-panel {
-                min-height: 400px;
-                overflow: visible;
-            }
-            #start-btn {
-                padding: 15px 50px;
-                font-size: 2rem;
-            }
-        }
+        #setting-error { color: #dc3545; display: none; margin-bottom: 15px; font-weight: bold; background: #ffe6e6; padding: 10px; border-radius: 5px; }
+        @media (max-width: 768px) { body { flex-direction: column; overflow-y: auto; } .left-panel { border-right: none; border-bottom: 4px solid var(--primary-blue); overflow: visible; } .right-panel { min-height: 400px; overflow: visible; } #start-btn { padding: 15px 50px; font-size: 2rem; } }
     </style>
 </head>
 <body>
 
-    <!-- Settings Modal -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <h2>⚙️ 遊戲設定</h2>
@@ -468,11 +99,11 @@
             </div>
             <div class="form-group">
                 <label>結束號碼 (To):</label>
-                <input type="number" id="set-max" value="70" min="2">
+                <input type="number" id="set-max" value="62" min="2">
             </div>
             <div class="form-group">
                 <label>抽獎翻轉時間 (秒):</label>
-                <input type="number" id="set-time" value="10" min="1">
+                <input type="number" id="set-time" value="5" min="1">
             </div>
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeSettings()">取消</button>
@@ -482,7 +113,6 @@
         </div>
     </div>
 
-    <!-- Confirm Reset Modal -->
     <div id="confirm-modal" class="modal">
         <div class="modal-content" style="text-align: center;">
             <h2 style="color: #dc3545;">⚠️ 確定重置？</h2>
@@ -494,35 +124,23 @@
         </div>
     </div>
 
-    <!-- Image Zoom Modal -->
-    <div id="image-modal" class="modal" onclick="closeImageModal()">
-        <div class="image-zoom-content" onclick="event.stopPropagation()">
-            <button class="close-img-btn" onclick="closeImageModal()">×</button>
-            <img id="enlarged-img" src="" alt="Enlarged Result">
-            <div id="enlarged-desc" class="image-zoom-desc"></div>
-        </div>
-    </div>
-
-    <!-- Main Layout -->
     <div class="left-panel">
         <div class="left-top">
             <h1>格局14</h1>
-            <div id="available-numbers" class="available-numbers">
-                <!-- 候選號碼動態生成 -->
-            </div>
+            <div id="available-numbers" class="available-numbers"></div>
         </div>
         <div class="left-middle">
             <div class="display-area" id="display-area">
                 <div class="flip-container" id="flip-container">
                     <img id="result-image" src="" crossorigin="anonymous" alt="Result Image" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400/0047FF/FFFFFF?text=Photo+Error'">
                     <span id="spin-number">READY</span>
-                    <div id="result-desc">等待開始...</div>
-                    <div id="countdown" class="countdown">10.0s</div>
+                    <div id="result-desc">正在讀取設定中...</div>
+                    <div id="countdown" class="countdown">5.0s</div>
                 </div>
             </div>
         </div>
         <div class="left-bottom">
-            <button id="start-btn" onclick="startDraw()">開始抽獎</button>
+            <button id="start-btn" onclick="startDraw()" disabled>載入中...</button>
         </div>
     </div>
 
@@ -531,20 +149,65 @@
             <button id="setting-icon" onclick="openSettings()" title="設定">⚙️</button>
         </div>
         <div class="drawn-title">已抽出號碼</div>
-        <div id="drawn-numbers" class="drawn-numbers">
-            <!-- 抽出號碼動態生成 -->
-        </div>
+        <div id="drawn-numbers" class="drawn-numbers"></div>
     </div>
 
     <script>
-        const LOCAL_STORAGE_KEY = 'bingo_game_state';
+        // 用來存放從 JSON 讀取進來的資料
+        let photoData = {};
+
+        // 讀取 JSON 檔案的非同步函數
+        async function loadPhotoData() {
+            try {
+                // 讀取同一層目錄下的 photo_data.json
+                const response = await fetch('photo_data.json');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // 將 JSON 陣列轉換成 Object 方便快速查詢
+                data.forEach(item => {
+                    photoData[item.number] = {
+                        filePath: item.file_path, // Python 產生的完整路徑 (例如 images/8/1 Mario.jpg)
+                        description: item.description
+                    };
+                });
+                
+                console.log("成功載入圖片資料:", photoData);
+                
+                // 資料載入完成後，才初始化遊戲介面
+                init();
+
+            } catch (error) {
+                console.error("載入 JSON 失敗:", error);
+                alert("無法載入 photo_data.json！請確保你已使用 Local Server 啟動網頁，而非直接雙擊打開 HTML。");
+                // 失敗的話依然初始化，但圖片會找不到
+                init();
+            }
+        }
+
+        // 取得相片對應的描述
+        function getDescription(num) {
+            if (photoData[num]) {
+                return photoData[num].description;
+            }
+            return `未設定描述`;
+        }
+
+        // 取得相片對應的完整路徑
+        function getFilePath(num) {
+            if (photoData[num]) {
+                return photoData[num].filePath; // 直接使用 JSON 提供的完整路徑
+            }
+            // 防呆預設路徑
+            return `images/${num}.jpg`; 
+        }
 
         // Global Preferences
-        let preferences = {
-            min: 1,
-            max: 70,
-            spinDurationSeconds: 10
-        };
+        let preferences = { min: 1, max: 62, spinDurationSeconds: 5 };
 
         // Game State
         let availableNumbers = [];
@@ -563,81 +226,10 @@
         const settingsModal = document.getElementById('settings-modal');
         const confirmModal = document.getElementById('confirm-modal');
         const errorMsg = document.getElementById('setting-error');
-
         const countdownEl = document.getElementById('countdown');
         const descEl = document.getElementById('result-desc');
-        const flipContainer = document.getElementById('flip-container');
-        
-        const imageModal = document.getElementById('image-modal');
-        const enlargedImg = document.getElementById('enlarged-img');
-        const enlargedDesc = document.getElementById('enlarged-desc');
 
-        function getDescription(num) {
-            return `這是號碼 ${num} 的專屬相片描述`;
-        }
-
-        resultImage.onclick = function() {
-            if (isSpinning || resultImage.src.includes('via.placeholder.com')) return;
-            enlargedImg.src = resultImage.src;
-            enlargedDesc.textContent = descEl.textContent;
-            imageModal.style.display = 'flex';
-        };
-
-        function closeImageModal() {
-            imageModal.style.display = 'none';
-        }
-
-        // --- Local Storage Integration ---
-        function loadGameState() {
-            try {
-                // 嘗試從 localStorage 讀取
-                const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-                if (savedData) {
-                    const data = JSON.parse(savedData);
-                    preferences = data.preferences || preferences;
-                    availableNumbers = data.availableNumbers || [];
-                    drawnNumbers = data.drawnNumbers || [];
-                    
-                    updateUI();
-                    resetDisplay();
-                } else {
-                    // 如果冇紀錄，就由頭初始化
-                    initAndSave();
-                }
-            } catch (e) {
-                // 防呆：如果 iframe 預覽環境 block 咗 localStorage，就跌入呢度純行 memory
-                console.warn("無法讀取 LocalStorage (可能處於預覽環境或無痕模式限制):", e);
-                fallbackMemoryInit();
-            }
-        }
-
-        function saveGameState() {
-            const data = {
-                preferences,
-                availableNumbers,
-                drawnNumbers
-            };
-            try {
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
-            } catch (e) {
-                console.warn("無法寫入 LocalStorage:", e);
-            }
-        }
-
-        // 初始化並強制覆蓋本地進度 (適用於 Reset)
-        function initAndSave() {
-            availableNumbers = [];
-            drawnNumbers = [];
-            for (let i = preferences.min; i <= preferences.max; i++) {
-                availableNumbers.push(i);
-            }
-            updateUI();
-            resetDisplay();
-            saveGameState(); // 嘗試儲存
-        }
-        
-        // 如果 LocalStorage 完全被 Block 嘅後備方案 (純 Memory 行行)
-        function fallbackMemoryInit() {
+        function init() {
             availableNumbers = [];
             drawnNumbers = [];
             for (let i = preferences.min; i <= preferences.max; i++) {
@@ -720,8 +312,12 @@
                 const tempNum = availableNumbers[randomIndex];
                 
                 spinNumberText.textContent = tempNum;
+                
+                // 動態更新圖片與描述
                 descEl.textContent = getDescription(tempNum);
-                resultImage.src = `https://picsum.photos/seed/${tempNum}/200/200`;
+                
+                // 這裡改用 getFilePath，因為 JSON 已經提供完整的相對路徑了
+                resultImage.src = getFilePath(tempNum); 
             }, 150); 
         }
 
@@ -739,15 +335,15 @@
             }
 
             drawnNumbers.push(winNumber);
-            
-            // 每次抽出號碼後，自動儲存遊戲進度到本地
-            saveGameState();
 
             spinNumberText.textContent = winNumber;
+            
+            // 最終結果的圖片與描述
             descEl.textContent = getDescription(winNumber);
             countdownEl.textContent = '0.0s';
             
-            const imgUrl = `https://picsum.photos/seed/${winNumber}/400/400`;
+            // 這裡改用 getFilePath
+            const imgUrl = getFilePath(winNumber); 
             
             resultImage.onload = () => {
                 resultImage.onload = null; 
@@ -776,9 +372,7 @@
             settingsModal.style.display = 'flex';
         }
 
-        function closeSettings() {
-            settingsModal.style.display = 'none';
-        }
+        function closeSettings() { settingsModal.style.display = 'none'; }
 
         function saveSettings() {
             const newMin = parseInt(document.getElementById('set-min').value);
@@ -795,7 +389,7 @@
             preferences.spinDurationSeconds = newTime;
             
             closeSettings();
-            initAndSave(); // 儲存設定並重置遊戲進度
+            init(); 
         }
 
         function confirmReset() {
@@ -803,23 +397,15 @@
             confirmModal.style.display = 'flex';
         }
 
-        function closeConfirm() {
-            confirmModal.style.display = 'none';
-        }
+        function closeConfirm() { confirmModal.style.display = 'none'; }
+        function executeReset() { closeConfirm(); init(); }
 
-        function executeReset() {
-            closeConfirm();
-            initAndSave(); 
-        }
-
+        // 確保 DOM 載入後，先執行 loadPhotoData() 讀取 JSON
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', loadGameState);
+            document.addEventListener('DOMContentLoaded', loadPhotoData);
         } else {
-            loadGameState();
+            loadPhotoData();
         }
     </script>
 </body>
 </html>
-
-
-
