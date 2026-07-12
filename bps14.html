@@ -31,11 +31,11 @@
         .left-panel { flex: 6.5; display: flex; flex-direction: column; border-right: 4px solid var(--primary-blue); padding: 20px; background-color: #fff; height: 100%; overflow-y: auto; }
         .right-panel { flex: 3.5; display: flex; flex-direction: column; background-color: #EBF1FF; padding: 20px; position: relative; height: 100%; }
 
-        /* Left Panel - Top (修改區塊：重疊效果) */
+        /* Left Panel - Top */
         .left-top { 
             flex: 0 1 auto; 
             text-align: center;
-            position: relative; /* 必須保留，作為絕對定位的框架 */
+            position: relative; 
             margin-bottom: 10px; 
             display: flex; 
             align-items: center; 
@@ -44,7 +44,7 @@
         }
         
         .draw-info {
-            position: absolute; /* 絕對定位：浮動在號碼海上方 */
+            position: absolute; 
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -53,15 +53,13 @@
             align-items: baseline;
             justify-content: center;
             gap: 20px;
-            pointer-events: none; /* 讓滑鼠點擊可以穿透 */
-            
-            /* 毛玻璃特效，確保字體清晰但又能隱約看到背後的細號碼 */
-            background: rgba(255, 255, 255, 0.75); 
-            backdrop-filter: blur(4px); 
+            pointer-events: none; 
+            background: rgba(255, 255, 255, 0.85); /* 稍微調深一點毛玻璃，讓字更清楚 */
+            backdrop-filter: blur(5px); 
             padding: 10px 40px;
             border-radius: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            white-space: nowrap; /* 確保字不會換行 */
+            white-space: nowrap; 
         }
 
         #spin-number { 
@@ -92,7 +90,7 @@
             padding: 5px; 
             width: 100%; 
             position: relative;
-            z-index: 2; /* 在大字的下層 */
+            z-index: 2; 
         }
         .available-numbers span { background: rgba(238, 238, 238, 0.85); padding: 2px 5px; border-radius: 4px; font-size: 0.75rem; transition: all 0.3s; border: 1px solid #ddd; }
 
@@ -256,7 +254,8 @@
                 data.forEach(item => {
                     photoData[item.number] = {
                         filePath: item.file_path, 
-                        description: item.description
+                        description: item.description,
+                        photoClass: item.class // 🔥 讀取 JSON 裡面的 class
                     };
                 });
                 
@@ -268,9 +267,17 @@
             }
         }
 
+        // 🔥 修改：將 description 和 class 組合起來
         function getDescription(num) {
             if (photoData[num]) {
-                return photoData[num].description;
+                let desc = photoData[num].description;
+                let pClass = photoData[num].photoClass;
+                
+                // 如果有 class，而且不是「未分類」，就加上 (格局X)
+                if (pClass && pClass !== "未分類") {
+                    return `${desc} (${pClass})`;
+                }
+                return desc;
             }
             return `未設定描述`;
         }
@@ -375,6 +382,7 @@
                 const tempNum = availableNumbers[randomIndex];
                 
                 spinNumberText.textContent = tempNum;
+                // 這裡會自動輸出例如： 回到過去 (格局8)
                 descEl.textContent = getDescription(tempNum);
                 resultImage.src = getFilePath(tempNum); 
             }, 150); 
@@ -397,6 +405,7 @@
 
             drawnNumbers.push(winNumber);
             spinNumberText.textContent = winNumber;
+            // 這裡也會自動輸出包含 class 的完整描述
             descEl.textContent = getDescription(winNumber);
             
             const imgUrl = getFilePath(winNumber); 
