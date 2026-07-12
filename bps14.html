@@ -24,12 +24,12 @@
             height: 100vh;
             background-color: var(--bg-color);
             color: var(--text-color);
-            overflow: hidden;
+            overflow: hidden; /* 防止整個網頁出現滾動條 */
         }
 
         /* Layout */
-        .left-panel { flex: 6.5; display: flex; flex-direction: column; border-right: 4px solid var(--primary-blue); padding: 20px; background-color: #fff; height: 100%; overflow-y: auto; }
-        .right-panel { flex: 3.5; display: flex; flex-direction: column; background-color: #EBF1FF; padding: 20px; position: relative; height: 100%; }
+        .left-panel { flex: 6.5; display: flex; flex-direction: column; border-right: 4px solid var(--primary-blue); padding: 20px; background-color: #fff; height: 100vh; overflow-y: auto; }
+        .right-panel { flex: 3.5; display: flex; flex-direction: column; background-color: #EBF1FF; padding: 20px; position: relative; height: 100vh; overflow: hidden; }
 
         /* Left Panel - Top */
         .left-top { 
@@ -54,7 +54,7 @@
             justify-content: center;
             gap: 20px;
             pointer-events: none; 
-            background: rgba(255, 255, 255, 0.85); /* 稍微調深一點毛玻璃，讓字更清楚 */
+            background: rgba(255, 255, 255, 0.85); 
             backdrop-filter: blur(5px); 
             padding: 10px 40px;
             border-radius: 20px;
@@ -95,11 +95,11 @@
         .available-numbers span { background: rgba(238, 238, 238, 0.85); padding: 2px 5px; border-radius: 4px; font-size: 0.75rem; transition: all 0.3s; border: 1px solid #ddd; }
 
         /* Left Panel - Middle */
-        .left-middle { flex: 1 1 auto; display: flex; justify-content: center; align-items: flex-start; position: relative; min-height: 300px; padding-top: 10px; }
+        .left-middle { flex: 1 1 auto; display: flex; justify-content: center; align-items: center; position: relative; padding: 10px 0; }
         .display-area { 
-            width: clamp(300px, 65vw, 750px); 
+            width: clamp(300px, 65vw, 850px); 
             aspect-ratio: 16 / 10; 
-            height: auto; 
+            max-height: 100%; /* 避免圖片過高把版面撐破 */
             border: 8px solid var(--primary-orange); 
             border-radius: 20px; 
             display: flex; 
@@ -123,37 +123,59 @@
         .flip { animation: flipAnim 0.15s infinite; }
         @keyframes flipAnim { 0% { transform: scaleY(1); opacity: 1; } 50% { transform: scaleY(0); opacity: 0.5; } 100% { transform: scaleY(1); opacity: 1; } }
 
-        /* Left Panel - Bottom */
-        .left-bottom { flex: 1; display: flex; justify-content: center; align-items: center; min-height: 120px; margin-top: 20px; }
-        #start-btn { 
-            background-color: var(--primary-orange); 
-            color: white; 
-            border: none; 
-            padding: 20px 60px; 
-            font-size: 2.5rem; 
-            font-weight: bold; 
-            border-radius: 50px; 
-            cursor: pointer; 
-            box-shadow: 0 8px 15px rgba(255, 122, 0, 0.3); 
-            transition: all 0.2s ease; 
-            letter-spacing: 2px; 
-            min-width: 350px; 
-        }
-        #start-btn:hover:not(:disabled) { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 25px rgba(255, 122, 0, 0.4); }
-        #start-btn:active:not(:disabled) { transform: translateY(2px); }
-        #start-btn:disabled { background-color: #ccc; cursor: not-allowed; box-shadow: none; color: #666; }
-
-        /* Right Panel & Modals */
-        .settings-container { text-align: right; margin-bottom: 20px; }
+        /* Right Panel */
+        .settings-container { flex: 0 0 auto; text-align: right; margin-bottom: 10px; }
         #setting-icon { font-size: 2rem; cursor: pointer; background: none; border: none; color: var(--primary-blue); transition: transform 0.3s; }
         #setting-icon:hover { transform: rotate(90deg); }
-        .drawn-title { color: var(--primary-blue); font-size: 1.8rem; text-align: center; border-bottom: 3px solid var(--primary-orange); padding-bottom: 15px; font-weight: bold; }
-        .drawn-numbers { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px; align-content: flex-start; overflow-y: auto; flex: 1; padding-right: 5px; }
+        .drawn-title { flex: 0 0 auto; color: var(--primary-blue); font-size: 1.8rem; text-align: center; border-bottom: 3px solid var(--primary-orange); padding-bottom: 10px; margin-bottom: 15px; font-weight: bold; }
+        
+        /* 🔥 確保抽出號碼區塊可以獨立捲動 */
+        .drawn-numbers { 
+            flex: 1 1 0; /* 讓它填滿剩餘空間，但不會撐開父元素 */
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+            align-content: flex-start; 
+            overflow-y: auto; 
+            padding-right: 10px; 
+            padding-bottom: 20px;
+        }
+        
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
         .drawn-item { font-size: 2rem; font-weight: bold; color: var(--primary-orange); background: #fff; padding: 10px 20px; border-radius: 10px; border: 3px solid var(--primary-blue); box-shadow: 0 4px 8px rgba(0,71,255,0.1); }
+
+        /* 🔥 右側底部按鈕區塊 */
+        .right-bottom {
+            flex: 0 0 auto;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px dashed #baccff;
+            display: flex;
+            justify-content: center;
+        }
+
+        #start-btn { 
+            width: 100%;
+            background-color: var(--primary-orange); 
+            color: white; 
+            border: none; 
+            padding: 20px 0; 
+            font-size: 2.2rem; 
+            font-weight: bold; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            box-shadow: 0 8px 15px rgba(255, 122, 0, 0.3); 
+            transition: all 0.2s ease; 
+            letter-spacing: 2px; 
+        }
+        #start-btn:hover:not(:disabled) { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 25px rgba(255, 122, 0, 0.4); }
+        #start-btn:active:not(:disabled) { transform: translateY(2px); }
+        #start-btn:disabled { background-color: #ccc; cursor: not-allowed; box-shadow: none; color: #666; }
+
+        /* Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
         .modal-content { background-color: #fff; padding: 30px; border-radius: 15px; width: 90%; max-width: 450px; border-top: 8px solid var(--primary-blue); box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: slideDown 0.3s ease-out; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -169,7 +191,13 @@
         .btn-danger { background-color: #dc3545; color: white; }
         .btn-secondary { background-color: #6c757d; color: white; }
         #setting-error { color: #dc3545; display: none; margin-bottom: 15px; font-weight: bold; background: #ffe6e6; padding: 10px; border-radius: 5px; }
-        @media (max-width: 768px) { body { flex-direction: column; overflow-y: auto; } .left-panel { border-right: none; border-bottom: 4px solid var(--primary-blue); overflow: visible; } .right-panel { min-height: 400px; overflow: visible; } #start-btn { padding: 15px 40px; font-size: 2rem; min-width: auto; } }
+
+        @media (max-width: 768px) { 
+            body { flex-direction: column; overflow-y: auto; } 
+            .left-panel { border-right: none; border-bottom: 4px solid var(--primary-blue); height: auto; min-height: 60vh;} 
+            .right-panel { height: auto; min-height: 400px; overflow: visible; } 
+            .drawn-numbers { flex: auto; overflow-y: visible; }
+        }
     </style>
 </head>
 <body>
@@ -224,10 +252,6 @@
                 <img id="result-image" src="" crossorigin="anonymous" alt="Result Image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/EBF1FF/0047FF?text=Photo+Error'">
             </div>
         </div>
-        
-        <div class="left-bottom">
-            <button id="start-btn" onclick="startDraw()" disabled>載入中...</button>
-        </div>
     </div>
 
     <div class="right-panel">
@@ -235,7 +259,12 @@
             <button id="setting-icon" onclick="openSettings()" title="設定">⚙️</button>
         </div>
         <div class="drawn-title">已抽出號碼</div>
+        
         <div id="drawn-numbers" class="drawn-numbers"></div>
+        
+        <div class="right-bottom">
+            <button id="start-btn" onclick="startDraw()" disabled>載入中...</button>
+        </div>
     </div>
 
     <script>
@@ -255,7 +284,7 @@
                     photoData[item.number] = {
                         filePath: item.file_path, 
                         description: item.description,
-                        photoClass: item.class // 🔥 讀取 JSON 裡面的 class
+                        photoClass: item.class 
                     };
                 });
                 
@@ -267,13 +296,11 @@
             }
         }
 
-        // 🔥 修改：將 description 和 class 組合起來
         function getDescription(num) {
             if (photoData[num]) {
                 let desc = photoData[num].description;
                 let pClass = photoData[num].photoClass;
                 
-                // 如果有 class，而且不是「未分類」，就加上 (格局X)
                 if (pClass && pClass !== "未分類") {
                     return `${desc} (${pClass})`;
                 }
@@ -340,6 +367,9 @@
                 startBtn.disabled = false;
                 startBtn.textContent = '開始抽獎';
             }
+            
+            // 確保每次新增號碼時，滾動條會自動捲到最底，看到最新的號碼
+            drawnDiv.scrollTop = drawnDiv.scrollHeight;
         }
 
         function resetDisplay() {
@@ -382,7 +412,6 @@
                 const tempNum = availableNumbers[randomIndex];
                 
                 spinNumberText.textContent = tempNum;
-                // 這裡會自動輸出例如： 回到過去 (格局8)
                 descEl.textContent = getDescription(tempNum);
                 resultImage.src = getFilePath(tempNum); 
             }, 150); 
@@ -405,7 +434,6 @@
 
             drawnNumbers.push(winNumber);
             spinNumberText.textContent = winNumber;
-            // 這裡也會自動輸出包含 class 的完整描述
             descEl.textContent = getDescription(winNumber);
             
             const imgUrl = getFilePath(winNumber); 
