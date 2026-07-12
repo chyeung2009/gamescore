@@ -31,43 +31,72 @@
         .left-panel { flex: 6.5; display: flex; flex-direction: column; border-right: 4px solid var(--primary-blue); padding: 20px; background-color: #fff; height: 100%; overflow-y: auto; }
         .right-panel { flex: 3.5; display: flex; flex-direction: column; background-color: #EBF1FF; padding: 20px; position: relative; height: 100%; }
 
-        /* Left Panel - Top (修改區塊) */
+        /* Left Panel - Top (修改區塊：重疊效果) */
         .left-top { 
             flex: 0 1 auto; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
+            text-align: center;
+            position: relative; /* 必須保留，作為絕對定位的框架 */
             margin-bottom: 10px; 
-            min-height: 120px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 150px; 
         }
         
         .draw-info {
+            position: absolute; /* 絕對定位：浮動在號碼海上方 */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
             display: flex;
             align-items: baseline;
             justify-content: center;
             gap: 20px;
-            margin-bottom: 15px;
-            min-height: 60px;
+            pointer-events: none; /* 讓滑鼠點擊可以穿透 */
+            
+            /* 毛玻璃特效，確保字體清晰但又能隱約看到背後的細號碼 */
+            background: rgba(255, 255, 255, 0.75); 
+            backdrop-filter: blur(4px); 
+            padding: 10px 40px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            white-space: nowrap; /* 確保字不會換行 */
         }
 
         #spin-number { 
-            font-size: 5rem; 
+            font-size: 5.5rem; 
             line-height: 1; 
             color: var(--primary-blue);
             font-weight: bold;
-            text-shadow: 0 4px 10px rgba(0, 71, 255, 0.15);
+            text-shadow: 2px 2px 0px #fff;
         }
         
         #result-desc { 
-            font-size: 1.8rem; 
-            color: #555; 
+            font-size: 2rem; 
+            color: var(--primary-orange); 
             font-weight: bold; 
+            text-shadow: 1px 1px 0px #fff;
         }
 
-        .available-numbers { font-size: 1rem; color: #666; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-content: flex-start; max-height: 120px; overflow-y: auto; padding: 5px; width: 100%; }
+        .available-numbers { 
+            font-size: 1rem; 
+            color: #666; 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 4px; 
+            justify-content: center; 
+            align-content: flex-start; 
+            max-height: 150px; 
+            overflow-y: auto; 
+            padding: 5px; 
+            width: 100%; 
+            position: relative;
+            z-index: 2; /* 在大字的下層 */
+        }
         .available-numbers span { background: rgba(238, 238, 238, 0.85); padding: 2px 5px; border-radius: 4px; font-size: 0.75rem; transition: all 0.3s; border: 1px solid #ddd; }
 
-        /* Left Panel - Middle (修改區塊：讓圖片填滿橙色框) */
+        /* Left Panel - Middle */
         .left-middle { flex: 1 1 auto; display: flex; justify-content: center; align-items: flex-start; position: relative; min-height: 300px; padding-top: 10px; }
         .display-area { 
             width: clamp(300px, 65vw, 750px); 
@@ -78,17 +107,17 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            background-color: #f5f5f5; /* 淺灰底色，若圖片非 16:10 時填補邊緣 */
+            background-color: #f5f5f5;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
             overflow: hidden; 
             position: relative; 
-            padding: 0; /* 移除 padding 讓圖片貼齊邊框 */
+            padding: 0; 
         }
         
         .display-area img { 
             width: 100%; 
             height: 100%; 
-            object-fit: contain; /* 改為 contain 確保整張相片不被裁切 */
+            object-fit: contain; 
             display: block; 
         }
 
@@ -110,13 +139,13 @@
             box-shadow: 0 8px 15px rgba(255, 122, 0, 0.3); 
             transition: all 0.2s ease; 
             letter-spacing: 2px; 
-            min-width: 350px; /* 給予最小寬度避免秒數跳動時按鈕縮放 */
+            min-width: 350px; 
         }
         #start-btn:hover:not(:disabled) { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 25px rgba(255, 122, 0, 0.4); }
         #start-btn:active:not(:disabled) { transform: translateY(2px); }
         #start-btn:disabled { background-color: #ccc; cursor: not-allowed; box-shadow: none; color: #666; }
 
-        /* Right Panel & Modals 保持不變 */
+        /* Right Panel & Modals */
         .settings-container { text-align: right; margin-bottom: 20px; }
         #setting-icon { font-size: 2rem; cursor: pointer; background: none; border: none; color: var(--primary-blue); transition: transform 0.3s; }
         #setting-icon:hover { transform: rotate(90deg); }
@@ -142,7 +171,7 @@
         .btn-danger { background-color: #dc3545; color: white; }
         .btn-secondary { background-color: #6c757d; color: white; }
         #setting-error { color: #dc3545; display: none; margin-bottom: 15px; font-weight: bold; background: #ffe6e6; padding: 10px; border-radius: 5px; }
-        @media (max-width: 768px) { body { flex-direction: column; overflow-y: auto; } .left-panel { border-right: none; border-bottom: 4px solid var(--primary-blue); overflow: visible; } .right-panel { min-height: 400px; overflow: visible; } #start-btn { padding: 15px 40px; font-size: 2rem; min-width: auto; } .draw-info { flex-direction: column; gap: 5px; } }
+        @media (max-width: 768px) { body { flex-direction: column; overflow-y: auto; } .left-panel { border-right: none; border-bottom: 4px solid var(--primary-blue); overflow: visible; } .right-panel { min-height: 400px; overflow: visible; } #start-btn { padding: 15px 40px; font-size: 2rem; min-width: auto; } }
     </style>
 </head>
 <body>
@@ -184,17 +213,20 @@
 
     <div class="left-panel">
         <div class="left-top">
+            <div id="available-numbers" class="available-numbers"></div>
+            
             <div class="draw-info">
                 <span id="spin-number">READY</span>
                 <div id="result-desc">等待開始...</div>
             </div>
-            <div id="available-numbers" class="available-numbers"></div>
         </div>
+        
         <div class="left-middle">
             <div class="display-area" id="display-area">
                 <img id="result-image" src="" crossorigin="anonymous" alt="Result Image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/EBF1FF/0047FF?text=Photo+Error'">
             </div>
         </div>
+        
         <div class="left-bottom">
             <button id="start-btn" onclick="startDraw()" disabled>載入中...</button>
         </div>
@@ -316,7 +348,6 @@
             isSpinning = true;
             startBtn.disabled = true;
             
-            // 初始顯示秒數在按鈕上
             startBtn.textContent = `抽獎中 ${preferences.spinDurationSeconds.toFixed(1)}s`;
             
             resultImage.onload = null; 
@@ -338,7 +369,6 @@
                     return;
                 }
 
-                // 更新按鈕上的秒數
                 startBtn.textContent = `抽獎中 ${remain.toFixed(1)}s`;
 
                 const randomIndex = Math.floor(Math.random() * availableNumbers.length);
@@ -354,7 +384,6 @@
             clearInterval(spinInterval);
             spinNumberText.classList.remove('flip'); 
             
-            // 抽獎結束，等待圖片載入時的按鈕狀態
             startBtn.textContent = '載入圖片中...';
 
             const winIndex = Math.floor(Math.random() * availableNumbers.length);
@@ -375,20 +404,18 @@
             resultImage.onload = () => {
                 resultImage.onload = null; 
                 clearTimeout(imageFallbackTimeout); 
-                updateUI(); // 圖片載入完成後，按鈕會在這裡恢復為「開始抽獎」
+                updateUI(); 
                 isSpinning = false;
             };
             
             resultImage.src = imgUrl;
 
-            // 避免圖片載入過久卡住
             imageFallbackTimeout = setTimeout(() => {
                 updateUI();
                 isSpinning = false; 
             }, 1500);
         }
 
-        // --- Settings Menu ---
         function openSettings() {
             if (isSpinning) return;
             errorMsg.style.display = 'none';
