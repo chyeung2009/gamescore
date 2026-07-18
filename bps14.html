@@ -34,9 +34,11 @@
         }
 
         /* Layout - 降低透明度 (0.9 -> 0.65) 以便清楚看到背景，並調幼右側藍色邊框 (4px -> 2px) */
-        .left-panel { flex: 6.5; display: flex; flex-direction: column; border-right: 2px solid var(--primary-blue); padding: 20px; background-color: rgba(255, 255, 255, 0.65); height: 100vh; overflow-y: auto; backdrop-filter: blur(2px); }
-        .right-panel { flex: 3.5; display: flex; flex-direction: column; background-color: rgba(235, 241, 255, 0.7); padding: 20px; position: relative; height: 100vh; overflow: hidden; backdrop-filter: blur(2px); }
-
+        /* Layout - 移除半透明白色同模糊效果，改為完全透明 */
+        .left-panel { flex: 6.5; display: flex; flex-direction: column; border-right: 2px solid var(--primary-blue); padding: 20px; background-color: transparent; height: 100vh; overflow-y: auto; }
+        .right-panel { flex: 3.5; display: flex; flex-direction: column; background-color: transparent; padding: 20px; position: relative; height: 100vh; overflow: hidden; }
+        
+        
         /* Left Panel - Top */
         .left-top { 
             flex: 0 1 auto; 
@@ -184,7 +186,7 @@
         #start-btn:disabled { background-color: #ccc; cursor: not-allowed; box-shadow: none; color: #666; }
 
         /* Modals */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.2); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
         .modal-content { background-color: #fff; padding: 30px; border-radius: 15px; width: 90%; max-width: 450px; border-top: 8px solid var(--primary-blue); box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: slideDown 0.3s ease-out; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .modal h2 { margin-top: 0; color: var(--primary-blue); }
