@@ -116,7 +116,20 @@
         .settings-container { flex: 0 0 auto; text-align: right; margin-bottom: 10px; }
         #setting-icon { font-size: 2rem; cursor: pointer; background: none; border: none; color: var(--primary-gold); transition: transform 0.3s; }
         #setting-icon:hover { transform: rotate(90deg); }
-        .drawn-title { flex: 0 0 auto; color: var(--primary-gold); font-size: 1.8rem; text-align: center; border-bottom: 3px solid var(--primary-black); padding-bottom: 10px; margin-bottom: 15px; font-weight: bold; }
+        
+        .drawn-title { 
+            flex: 0 0 auto; 
+            color: var(--primary-gold); 
+            font-size: 1.8rem; 
+            text-align: center; 
+            border-bottom: 3px solid var(--primary-black); 
+            padding: 10px 15px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+            background-color: #ffffff; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05); 
+        }
         
         .drawn-numbers { 
             flex: 1 1 0; 
@@ -136,7 +149,7 @@
         ::-webkit-scrollbar-thumb { background: #e8c978; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #d4af37; }
         
-        .drawn-item { font-size: 2rem; font-weight: bold; color: var(--primary-black); background: #ffffff; padding: 10px 20px; border-radius: 10px; border: 2px solid var(--primary-gold); box-shadow: 0 4px 8px rgba(218,165,32,0.15); }
+        .drawn-item { font-size: 2rem; font-weight: bold; color: var(--primary-black); background: #ffffff; padding: 10px 20px; border-radius: 10px; border: 2px solid var(--primary-gold); box-shadow: 0 4px 8px rgba(218,165,32,0.15); width: 80px; display: flex; justify-content: center; align-items: center; }
 
         .right-bottom {
             flex: 0 0 auto;
@@ -237,7 +250,6 @@
         
         <div class="left-middle">
             <div class="display-area" id="display-area">
-                <!-- 移除了 HTML inline 的 onerror，改由 JS 統一管理 -->
                 <img id="result-image" src="https://via.placeholder.com/800x500/f5f5f5/DAA520?text=READY" crossorigin="anonymous" alt="Result Image">
             </div>
         </div>
@@ -257,6 +269,7 @@
     </div>
 
     <script>
+        const LOCAL_STORAGE_KEY = 'bingo_game_state_blackgold';
         let photoData = {};
 
         async function loadPhotoData() {
@@ -267,10 +280,10 @@
                 data.forEach(item => {
                     photoData[item.number] = { filePath: item.file_path, description: item.description, photoClass: item.class };
                 });
-                init();
+                loadGameState(); // JSON 載入完成後才載入遊戲紀錄
             } catch (error) {
                 console.warn("載入 JSON 失敗，將使用預設設定:", error);
-                init();
+                loadGameState(); // 失敗也要載入遊戲紀錄
             }
         }
 
@@ -303,12 +316,43 @@
         const errorMsg = document.getElementById('setting-error');
         const descEl = document.getElementById('result-desc');
 
+        // --- Local Storage Integration ---
+        function loadGameState() {
+            try {
+                const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    preferences = data.preferences || preferences;
+                    availableNumbers = data.availableNumbers || [];
+                    drawnNumbers = data.drawnNumbers || [];
+                    
+                    updateUI();
+                    resetDisplay();
+                } else {
+                    init();
+                }
+            } catch (e) {
+                console.warn("無法讀取 LocalStorage:", e);
+                init();
+            }
+        }
+
+        function saveGameState() {
+            const data = { preferences, availableNumbers, drawnNumbers };
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+            } catch (e) {
+                console.warn("無法寫入 LocalStorage:", e);
+            }
+        }
+
         function init() {
             availableNumbers = [];
             drawnNumbers = [];
             for (let i = preferences.min; i <= preferences.max; i++) availableNumbers.push(i);
             updateUI();
             resetDisplay();
+            saveGameState();
         }
 
         function updateUI() {
@@ -336,12 +380,10 @@
             startBtn.disabled = true;
             spinNumberText.classList.add('flip');
             
-            // 清理之前的事件綁定和 timeout
             resultImage.onload = null;
             resultImage.onerror = null;
             clearTimeout(imageFallbackTimeout);
             
-            // 轉動期間如果圖片找不到，給一個安靜的 fallback
             resultImage.onerror = function() {
                 this.src = 'https://via.placeholder.com/800x500/f5f5f5/DAA520?text=Loading...';
             };
@@ -371,10 +413,11 @@
             const winNumber = availableNumbers.splice(winIndex, 1)[0];
             drawnNumbers.push(winNumber);
             
+            saveGameState(); // 每次抽出新號碼就儲存
+            
             spinNumberText.textContent = winNumber;
             descEl.textContent = getDescription(winNumber);
             
-            // 處理最終圖片載入，確保 UI 解鎖
             resultImage.onload = null;
             resultImage.onerror = null;
             clearTimeout(imageFallbackTimeout);
@@ -385,7 +428,6 @@
             };
             
             resultImage.onerror = () => {
-                // 若找不到圖片，顯示美觀的錯誤圖示，並解鎖按鈕
                 resultImage.src = `https://via.placeholder.com/800x500/f5f5f5/DAA520?text=Photo+Missing+(${winNumber})`;
                 isSpinning = false; 
                 updateUI();
@@ -393,7 +435,6 @@
 
             resultImage.src = getFilePath(winNumber);
             
-            // 終極防呆：即使 onload/onerror 都掛掉，1.5 秒後也會強制解鎖
             imageFallbackTimeout = setTimeout(() => {
                 if (isSpinning) {
                     isSpinning = false;
@@ -413,12 +454,13 @@
                 return;
             }
             preferences.min = newMin; preferences.max = newMax; preferences.spinDurationSeconds = newTime;
-            closeSettings(); init();
+            closeSettings(); init(); // init 裡面已經包含了 saveGameState
         }
         function confirmReset() { closeSettings(); confirmModal.style.display = 'flex'; }
         function closeConfirm() { confirmModal.style.display = 'none'; }
         function executeReset() { closeConfirm(); init(); }
 
+        // 啟動流程：先載入 JSON，再載入 LocalStorage 遊戲狀態
         loadPhotoData();
     </script>
 </body>
