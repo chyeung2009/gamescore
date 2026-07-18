@@ -1,3 +1,9 @@
+這就為你處理！背景圖片看不見通常是因為左右兩側面板的背景顏色太不透明（Opacity 太高，原本是 0.9），我已經將它們的透明度調低，讓背景圖片能透出來。同時也將你指定的橙色和藍色邊框調幼了。
+以下是修改後的主要變更：
+• 背景透明度：.left-panel 和 .right-panel 的背景透明度由 0.9 降至 0.65 和 0.7。(注意：請確保 images/background.png 檔案真的存在於你的資料夾中，否則依然只會看到預設底色)。
+• 橙色邊框：顯示圖片的 .display-area 邊框由 8px 調幼至 3px。
+• 藍色邊框：分割左右畫面的 .left-panel 右邊框由 4px 調幼至 2px（手機模式下的底邊框也同步調幼）。
+你可以直接複製以下完整的程式碼並覆蓋原本的檔案：
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
@@ -22,7 +28,8 @@
             padding: 0;
             display: flex;
             height: 100vh;
-            /* 背景圖片設定 */
+            /* 背景圖片設定 - 加入了後備漸變色以防圖片載入失敗 */
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
             background-image: url('images/background.png');
             background-size: cover;
             background-position: center;
@@ -32,9 +39,9 @@
             overflow: hidden;
         }
 
-        /* Layout - 加入半透明效果以便看到背景 */
-        .left-panel { flex: 6.5; display: flex; flex-direction: column; border-right: 4px solid var(--primary-blue); padding: 20px; background-color: rgba(255, 255, 255, 0.9); height: 100vh; overflow-y: auto; }
-        .right-panel { flex: 3.5; display: flex; flex-direction: column; background-color: rgba(235, 241, 255, 0.9); padding: 20px; position: relative; height: 100vh; overflow: hidden; }
+        /* Layout - 降低透明度 (0.9 -> 0.65) 以便清楚看到背景，並調幼右側藍色邊框 (4px -> 2px) */
+        .left-panel { flex: 6.5; display: flex; flex-direction: column; border-right: 2px solid var(--primary-blue); padding: 20px; background-color: rgba(255, 255, 255, 0.65); height: 100vh; overflow-y: auto; backdrop-filter: blur(2px); }
+        .right-panel { flex: 3.5; display: flex; flex-direction: column; background-color: rgba(235, 241, 255, 0.7); padding: 20px; position: relative; height: 100vh; overflow: hidden; backdrop-filter: blur(2px); }
 
         /* Left Panel - Top */
         .left-top { 
@@ -97,15 +104,17 @@
             position: relative;
             z-index: 2; 
         }
-        .available-numbers span { background: rgba(238, 238, 238, 0.85); padding: 2px 5px; border-radius: 4px; font-size: 0.75rem; transition: all 0.3s; border: 1px solid #ddd; }
+        .available-numbers span { background: rgba(255, 255, 255, 0.85); padding: 2px 5px; border-radius: 4px; font-size: 0.75rem; transition: all 0.3s; border: 1px solid #ccc; }
 
         /* Left Panel - Middle */
         .left-middle { flex: 1 1 auto; display: flex; justify-content: center; align-items: center; position: relative; padding: 10px 0; }
+        
+        /* 顯示區的橙色邊框調幼 (8px -> 3px) */
         .display-area { 
             width: clamp(300px, 65vw, 850px); 
             aspect-ratio: 16 / 10; 
             max-height: 100%; 
-            border: 8px solid var(--primary-orange); 
+            border: 3px solid var(--primary-orange); 
             border-radius: 20px; 
             display: flex; 
             justify-content: center; 
@@ -146,10 +155,12 @@
         }
         
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
-        .drawn-item { font-size: 2rem; font-weight: bold; color: var(--primary-orange); background: #fff; padding: 10px 20px; border-radius: 10px; border: 3px solid var(--primary-blue); box-shadow: 0 4px 8px rgba(0,71,255,0.1); }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.5); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #baccff; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #88a3f9; }
+        
+        /* 抽出的號碼方塊藍邊也稍微調幼一點保持風格一致 */
+        .drawn-item { font-size: 2rem; font-weight: bold; color: var(--primary-orange); background: #fff; padding: 10px 20px; border-radius: 10px; border: 2px solid var(--primary-blue); box-shadow: 0 4px 8px rgba(0,71,255,0.1); }
 
         .right-bottom {
             flex: 0 0 auto;
@@ -197,7 +208,8 @@
 
         @media (max-width: 768px) { 
             body { flex-direction: column; overflow-y: auto; } 
-            .left-panel { border-right: none; border-bottom: 4px solid var(--primary-blue); height: auto; min-height: 60vh;} 
+            /* 手機版的藍色底線也調幼為 2px */
+            .left-panel { border-right: none; border-bottom: 2px solid var(--primary-blue); height: auto; min-height: 60vh;} 
             .right-panel { height: auto; min-height: 400px; overflow: visible; } 
             .drawn-numbers { flex: auto; overflow-y: visible; }
         }
