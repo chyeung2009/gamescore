@@ -22,14 +22,19 @@
             padding: 0;
             display: flex;
             height: 100vh;
-            background-color: var(--bg-color);
+            /* 背景圖片設定 */
+            background-image: url('images/background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             color: var(--text-color);
-            overflow: hidden; /* 防止整個網頁出現滾動條 */
+            overflow: hidden;
         }
 
-        /* Layout */
-        .left-panel { flex: 6.5; display: flex; flex-direction: column; border-right: 4px solid var(--primary-blue); padding: 20px; background-color: #fff; height: 100vh; overflow-y: auto; }
-        .right-panel { flex: 3.5; display: flex; flex-direction: column; background-color: #EBF1FF; padding: 20px; position: relative; height: 100vh; overflow: hidden; }
+        /* Layout - 加入半透明效果以便看到背景 */
+        .left-panel { flex: 6.5; display: flex; flex-direction: column; border-right: 4px solid var(--primary-blue); padding: 20px; background-color: rgba(255, 255, 255, 0.9); height: 100vh; overflow-y: auto; }
+        .right-panel { flex: 3.5; display: flex; flex-direction: column; background-color: rgba(235, 241, 255, 0.9); padding: 20px; position: relative; height: 100vh; overflow: hidden; }
 
         /* Left Panel - Top */
         .left-top { 
@@ -99,7 +104,7 @@
         .display-area { 
             width: clamp(300px, 65vw, 850px); 
             aspect-ratio: 16 / 10; 
-            max-height: 100%; /* 避免圖片過高把版面撐破 */
+            max-height: 100%; 
             border: 8px solid var(--primary-orange); 
             border-radius: 20px; 
             display: flex; 
@@ -129,9 +134,8 @@
         #setting-icon:hover { transform: rotate(90deg); }
         .drawn-title { flex: 0 0 auto; color: var(--primary-blue); font-size: 1.8rem; text-align: center; border-bottom: 3px solid var(--primary-orange); padding-bottom: 10px; margin-bottom: 15px; font-weight: bold; }
         
-        /* 🔥 確保抽出號碼區塊可以獨立捲動 */
         .drawn-numbers { 
-            flex: 1 1 0; /* 讓它填滿剩餘空間，但不會撐開父元素 */
+            flex: 1 1 0; 
             display: flex; 
             flex-wrap: wrap; 
             gap: 15px; 
@@ -147,7 +151,6 @@
         ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
         .drawn-item { font-size: 2rem; font-weight: bold; color: var(--primary-orange); background: #fff; padding: 10px 20px; border-radius: 10px; border: 3px solid var(--primary-blue); box-shadow: 0 4px 8px rgba(0,71,255,0.1); }
 
-        /* 🔥 右側底部按鈕區塊 */
         .right-bottom {
             flex: 0 0 auto;
             margin-top: 15px;
@@ -273,25 +276,14 @@
         async function loadPhotoData() {
             try {
                 const response = await fetch('photo_data.json');
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
-                
                 data.forEach(item => {
-                    photoData[item.number] = {
-                        filePath: item.file_path, 
-                        description: item.description,
-                        photoClass: item.class 
-                    };
+                    photoData[item.number] = { filePath: item.file_path, description: item.description, photoClass: item.class };
                 });
-                
                 init();
             } catch (error) {
                 console.error("載入 JSON 失敗:", error);
-                alert("無法載入 photo_data.json！請確保你已使用 Local Server 啟動網頁。");
                 init();
             }
         }
@@ -300,29 +292,21 @@
             if (photoData[num]) {
                 let desc = photoData[num].description;
                 let pClass = photoData[num].photoClass;
-                
-                if (pClass && pClass !== "未分類") {
-                    return `${desc} (${pClass})`;
-                }
-                return desc;
+                return (pClass && pClass !== "未分類") ? `${desc} (${pClass})` : desc;
             }
             return `未設定描述`;
         }
 
         function getFilePath(num) {
-            if (photoData[num]) {
-                return photoData[num].filePath; 
-            }
-            return `images/${num}.jpg`; 
+            return photoData[num] ? photoData[num].filePath : `images/${num}.jpg`;
         }
 
         let preferences = { min: 1, max: 62, spinDurationSeconds: 5 };
-
         let availableNumbers = [];
         let drawnNumbers = [];
         let isSpinning = false;
         let spinInterval;
-        let imageFallbackTimeout; 
+        let imageFallbackTimeout;
 
         const availableDiv = document.getElementById('available-numbers');
         const drawnDiv = document.getElementById('drawn-numbers');
@@ -337,9 +321,7 @@
         function init() {
             availableNumbers = [];
             drawnNumbers = [];
-            for (let i = preferences.min; i <= preferences.max; i++) {
-                availableNumbers.push(i);
-            }
+            for (let i = preferences.min; i <= preferences.max; i++) availableNumbers.push(i);
             updateUI();
             resetDisplay();
         }
@@ -351,7 +333,6 @@
                 span.textContent = num;
                 availableDiv.appendChild(span);
             });
-
             drawnDiv.innerHTML = '';
             drawnNumbers.forEach(num => {
                 let div = document.createElement('div');
@@ -359,142 +340,70 @@
                 div.textContent = num;
                 drawnDiv.appendChild(div);
             });
-
-            if (availableNumbers.length === 0) {
-                startBtn.disabled = true;
-                startBtn.textContent = '已抽完';
-            } else {
-                startBtn.disabled = false;
-                startBtn.textContent = '開始抽獎';
-            }
-            
-            // 確保每次新增號碼時，滾動條會自動捲到最底，看到最新的號碼
+            startBtn.disabled = (availableNumbers.length === 0);
+            startBtn.textContent = (availableNumbers.length === 0) ? '已抽完' : '開始抽獎';
             drawnDiv.scrollTop = drawnDiv.scrollHeight;
         }
 
         function resetDisplay() {
             spinNumberText.textContent = 'READY';
-            resultImage.onload = null; 
             resultImage.src = 'https://via.placeholder.com/800x500/EBF1FF/0047FF?text=READY';
             descEl.textContent = '等待開始...';
         }
 
         function startDraw() {
             if (isSpinning || availableNumbers.length === 0) return;
-            
             isSpinning = true;
             startBtn.disabled = true;
-            
-            startBtn.textContent = `抽獎中 ${preferences.spinDurationSeconds.toFixed(1)}s`;
-            
-            resultImage.onload = null; 
-            clearTimeout(imageFallbackTimeout);
-            
-            spinNumberText.classList.add('flip'); 
-
+            spinNumberText.classList.add('flip');
             const durationMs = preferences.spinDurationSeconds * 1000;
             const startTime = Date.now();
-
             spinInterval = setInterval(() => {
                 const elapsed = Date.now() - startTime;
                 let remain = (durationMs - elapsed) / 1000;
-
                 if (remain <= 0) {
-                    remain = 0;
-                    startBtn.textContent = `抽獎中 ${remain.toFixed(1)}s`;
                     finishDraw();
                     return;
                 }
-
                 startBtn.textContent = `抽獎中 ${remain.toFixed(1)}s`;
-
                 const randomIndex = Math.floor(Math.random() * availableNumbers.length);
                 const tempNum = availableNumbers[randomIndex];
-                
                 spinNumberText.textContent = tempNum;
                 descEl.textContent = getDescription(tempNum);
-                resultImage.src = getFilePath(tempNum); 
-            }, 150); 
+                resultImage.src = getFilePath(tempNum);
+            }, 150);
         }
 
         function finishDraw() {
             clearInterval(spinInterval);
-            spinNumberText.classList.remove('flip'); 
-            
-            startBtn.textContent = '載入圖片中...';
-
+            spinNumberText.classList.remove('flip');
             const winIndex = Math.floor(Math.random() * availableNumbers.length);
             const winNumber = availableNumbers.splice(winIndex, 1)[0];
-            
-            if (winNumber === undefined) {
-                isSpinning = false;
-                updateUI();
-                return;
-            }
-
             drawnNumbers.push(winNumber);
             spinNumberText.textContent = winNumber;
             descEl.textContent = getDescription(winNumber);
-            
-            const imgUrl = getFilePath(winNumber); 
-            
-            resultImage.onload = () => {
-                resultImage.onload = null; 
-                clearTimeout(imageFallbackTimeout); 
-                updateUI(); 
-                isSpinning = false;
-            };
-            
-            resultImage.src = imgUrl;
-
-            imageFallbackTimeout = setTimeout(() => {
-                updateUI();
-                isSpinning = false; 
-            }, 1500);
+            resultImage.src = getFilePath(winNumber);
+            resultImage.onload = () => { isSpinning = false; updateUI(); };
         }
 
-        function openSettings() {
-            if (isSpinning) return;
-            errorMsg.style.display = 'none';
-            document.getElementById('set-min').value = preferences.min;
-            document.getElementById('set-max').value = preferences.max;
-            document.getElementById('set-time').value = preferences.spinDurationSeconds;
-            settingsModal.style.display = 'flex';
-        }
-
+        function openSettings() { if (!isSpinning) settingsModal.style.display = 'flex'; }
         function closeSettings() { settingsModal.style.display = 'none'; }
-
         function saveSettings() {
             const newMin = parseInt(document.getElementById('set-min').value);
             const newMax = parseInt(document.getElementById('set-max').value);
             const newTime = parseInt(document.getElementById('set-time').value);
-
             if (isNaN(newMin) || isNaN(newMax) || isNaN(newTime) || newMin >= newMax || newTime <= 0) {
                 errorMsg.style.display = 'block';
                 return;
             }
-
-            preferences.min = newMin;
-            preferences.max = newMax;
-            preferences.spinDurationSeconds = newTime;
-            
-            closeSettings();
-            init(); 
+            preferences.min = newMin; preferences.max = newMax; preferences.spinDurationSeconds = newTime;
+            closeSettings(); init();
         }
-
-        function confirmReset() {
-            closeSettings();
-            confirmModal.style.display = 'flex';
-        }
-
+        function confirmReset() { closeSettings(); confirmModal.style.display = 'flex'; }
         function closeConfirm() { confirmModal.style.display = 'none'; }
         function executeReset() { closeConfirm(); init(); }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', loadPhotoData);
-        } else {
-            loadPhotoData();
-        }
+        loadPhotoData();
     </script>
 </body>
 </html>
